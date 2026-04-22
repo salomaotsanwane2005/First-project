@@ -2020,3 +2020,50 @@ html[data-theme="light"] .overlay {
     min-width: 180px;
   }
 }
+/* ============================================
+   RESPONSIVIDADE DA SEÇÃO SOBRE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .about-content {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+
+  .about-stats {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 1rem !important;
+  }
+
+  .stat {
+    flex: 1 !important;
+    min-width: 100px !important;
+    padding: 1.5rem 1rem !important;
+  }
+
+  .stat-number {
+    font-size: 2rem !important;
+  }
+
+  .stat-label {
+    font-size: 0.85rem !important;
+  }
+
+  .about-text p {
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-stats {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .stat {
+    width: 100% !important;
+  }
+}

@@ -423,6 +423,7 @@
       display: flex;
       gap: 1rem;
       margin: 1rem 0;
+      flex-wrap: wrap;
     }
 
     .payment-method {
@@ -433,6 +434,7 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
+      min-width: 80px;
     }
 
     .payment-method.selected {
@@ -444,6 +446,10 @@
       font-size: 1.5rem;
       margin-bottom: 0.5rem;
       display: block;
+    }
+
+    .payment-method span {
+      font-size: 0.8rem;
     }
 
     /* Notificação */
@@ -505,6 +511,65 @@
     .back-home-btn:hover {
       background: var(--bg-hover);
     }
+
+    /* Responsividade do Modal */
+    @media (max-width: 600px) {
+      .modal-content {
+        width: 95% !important;
+        max-height: 85vh !important;
+      }
+      
+      .modal-body {
+        padding: 1.5rem !important;
+      }
+      
+      .payment-methods {
+        gap: 0.8rem !important;
+      }
+      
+      .payment-method {
+        min-width: 70px !important;
+        padding: 0.6rem !important;
+      }
+      
+      .payment-method i {
+        font-size: 1.1rem !important;
+      }
+      
+      .payment-method span {
+        font-size: 0.7rem !important;
+      }
+      
+      .checkout-form input,
+      .checkout-form select,
+      .checkout-form textarea {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .modal-body {
+        padding: 1rem !important;
+      }
+      
+      .payment-methods {
+        gap: 0.5rem !important;
+      }
+      
+      .payment-method {
+        min-width: 60px !important;
+        padding: 0.5rem !important;
+      }
+      
+      .payment-method i {
+        font-size: 1rem !important;
+      }
+      
+      .payment-method span {
+        font-size: 0.65rem !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -540,7 +605,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE CHECKOUT -->
+  <!-- MODAL DE CHECKOUT (SEM CAMPO EMAIL) -->
   <div class="modal" id="checkoutModal">
     <div class="modal-content">
       <button class="modal-close">&times;</button>
@@ -742,7 +807,7 @@
     }
 
     // ============================================================
-    // CHECKOUT
+    // CHECKOUT (SEM EMAIL)
     // ============================================================
     function openCheckoutModal() {
       const modal = document.getElementById('checkoutModal');
@@ -750,12 +815,10 @@
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
         
-        // Verificar se tem dados do usuário no localStorage
         const savedUser = localStorage.getItem('vrtigoCurrentUser');
         if (savedUser) {
           const user = JSON.parse(savedUser);
           document.getElementById('checkoutName').value = user.name || '';
-          document.getElementById('checkoutEmail').value = user.email || '';
         }
       }
     }
@@ -781,23 +844,20 @@
       event.preventDefault();
       
       const name = document.getElementById('checkoutName').value.trim();
-      const email = document.getElementById('checkoutEmail').value.trim();
       const phone = document.getElementById('checkoutPhone').value.trim();
       const address = document.getElementById('checkoutAddress').value.trim();
       const city = document.getElementById('checkoutCity').value;
       const observations = document.getElementById('checkoutObservations').value.trim();
       const paymentMethod = document.getElementById('checkoutPaymentMethod').value;
       
-      if (!name || !email || !phone || !address || !city) {
+      if (!name || !phone || !address || !city) {
         alert('Por favor, preencha todos os campos obrigatórios!');
         return;
       }
       
-      // Montar mensagem do pedido
       let message = `🛍️ *NOVO PEDIDO - VRTIGO* 🛍️\n\n`;
       message += `👤 *Dados do Cliente:*\n`;
       message += `Nome: ${name}\n`;
-      message += `Email: ${email}\n`;
       message += `Telefone: ${phone}\n`;
       message += `Endereço: ${address}\n`;
       message += `Cidade: ${city}\n`;
@@ -818,14 +878,11 @@
       message += `TOTAL: R$ ${calculateTotal().toFixed(2)}\n`;
       message += `\n💳 *Forma de Pagamento:* ${getPaymentMethodName(paymentMethod)}\n`;
       message += `\n📅 *Data do Pedido:* ${new Date().toLocaleString('pt-BR')}\n`;
-      message += `\n🔗 *Enviado via Site VRTIGO*\n`;
-      message += `📍 *Link da Loja:* https://vrtigo.com`;
+      message += `\n🔗 *Enviado via Site VRTIGO*`;
       
-      // Enviar para o WhatsApp
       const encodedMessage = encodeURIComponent(message);
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
       
-      // Perguntar se quer limpar o carrinho
       if (confirm('✅ Pedido enviado com sucesso!\n\nDeseja limpar o carrinho?')) {
         cartItems = [];
         saveCart();
@@ -871,13 +928,11 @@
       initTheme();
       loadCart();
       
-      // Botão de limpar carrinho
       const clearCartBtn = document.getElementById('clearCartBtn');
       if (clearCartBtn) {
         clearCartBtn.addEventListener('click', clearCart);
       }
       
-      // Modal de checkout
       const checkoutModal = document.getElementById('checkoutModal');
       if (checkoutModal) {
         const closeBtn = checkoutModal.querySelector('.modal-close');
@@ -889,13 +944,11 @@
         });
       }
       
-      // Formulário de checkout
       const checkoutForm = document.getElementById('checkoutForm');
       if (checkoutForm) {
         checkoutForm.addEventListener('submit', sendOrderToWhatsApp);
       }
       
-      // Métodos de pagamento
       document.querySelectorAll('.payment-method').forEach(method => {
         method.addEventListener('click', () => {
           document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
@@ -904,7 +957,6 @@
         });
       });
       
-      // Selecionar primeiro método de pagamento por padrão
       const firstMethod = document.querySelector('.payment-method');
       if (firstMethod) {
         firstMethod.classList.add('selected');

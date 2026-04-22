@@ -138,12 +138,82 @@
       gap: 2rem;
     }
 
+    /* CORREÇÃO: Cards responsivos no carrinho */
     @media (max-width: 768px) {
       .cart-container {
         grid-template-columns: 1fr;
       }
       .cart-header h1 {
         font-size: 1.5rem;
+      }
+    }
+
+    /* CORREÇÃO: Responsividade dos itens do carrinho */
+    @media (max-width: 640px) {
+      .cart-item {
+        grid-template-columns: 80px 1fr;
+        grid-template-areas: 
+          "image details"
+          "image subtotal"
+          "actions actions";
+        gap: 0.8rem;
+        padding: 1rem;
+      }
+      
+      .cart-item-image {
+        grid-area: image;
+        width: 80px;
+        height: 80px;
+      }
+      
+      .cart-item-details {
+        grid-area: details;
+      }
+      
+      .cart-item-subtotal {
+        grid-area: subtotal;
+        text-align: left;
+        padding-left: 0;
+      }
+      
+      .cart-item-actions {
+        grid-area: actions;
+        justify-content: flex-start;
+      }
+      
+      .cart-item-title {
+        font-size: 1rem;
+      }
+      
+      .cart-item-price {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cart-item {
+        grid-template-columns: 70px 1fr;
+        gap: 0.6rem;
+        padding: 0.8rem;
+      }
+      
+      .cart-item-image {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .quantity-control button {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+      }
+      
+      .quantity-control span {
+        min-width: 35px;
+      }
+      
+      .remove-item {
+        font-size: 1rem;
       }
     }
 
@@ -262,6 +332,13 @@
       height: fit-content;
     }
 
+    @media (max-width: 768px) {
+      .cart-summary {
+        position: static;
+        margin-top: 1rem;
+      }
+    }
+
     .cart-summary h3 {
       font-size: 1.3rem;
       margin-bottom: 1.5rem;
@@ -345,7 +422,7 @@
       margin-bottom: 2rem;
     }
 
-    /* Modal de Checkout */
+    /* Modal de Checkout - CORRIGIDO (scroll visível) */
     .modal {
       display: none;
       position: fixed;
@@ -353,7 +430,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       z-index: 1000;
       justify-content: center;
       align-items: center;
@@ -370,24 +447,56 @@
       border-radius: 20px;
       position: relative;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-height: 90vh;
+      max-height: 85vh;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Garantir que o botão seja visível no final do scroll */
+    .modal-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .modal-content::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+      border-radius: 3px;
+    }
+    
+    .modal-content::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
     }
 
     .modal-close {
-      position: absolute;
-      top: 15px;
+      position: sticky;
+      top: 10px;
       right: 20px;
-      background: none;
+      float: right;
+      background: rgba(0, 0, 0, 0.7);
       border: none;
-      font-size: 1.8rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.5rem;
       cursor: pointer;
       color: var(--text);
       z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      margin-left: auto;
+      margin-bottom: 1rem;
+    }
+
+    .modal-close:hover {
+      background: var(--danger);
+      transform: rotate(90deg);
     }
 
     .modal-body {
-      padding: 2rem;
+      padding: 0 2rem 2rem 2rem;
     }
 
     .checkout-form {
@@ -410,6 +519,7 @@
       background: var(--bg-secondary);
       color: var(--text);
       font-family: inherit;
+      font-size: 14px;
     }
 
     .form-group input:focus,
@@ -450,6 +560,15 @@
 
     .payment-method span {
       font-size: 0.8rem;
+    }
+
+    /* Botão do formulário sempre visível */
+    .checkout-form .checkout-btn {
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      position: sticky;
+      bottom: 0;
+      background: var(--gradient);
     }
 
     /* Notificação */
@@ -515,59 +634,67 @@
     /* Responsividade do Modal */
     @media (max-width: 600px) {
       .modal-content {
-        width: 95% !important;
-        max-height: 85vh !important;
+        width: 95%;
+        max-height: 80vh;
       }
       
       .modal-body {
-        padding: 1.5rem !important;
+        padding: 0 1.2rem 1.2rem 1.2rem;
       }
       
       .payment-methods {
-        gap: 0.8rem !important;
+        gap: 0.8rem;
       }
       
       .payment-method {
-        min-width: 70px !important;
-        padding: 0.6rem !important;
+        min-width: 70px;
+        padding: 0.6rem;
       }
       
       .payment-method i {
-        font-size: 1.1rem !important;
+        font-size: 1.1rem;
       }
       
       .payment-method span {
-        font-size: 0.7rem !important;
+        font-size: 0.7rem;
       }
       
       .checkout-form input,
       .checkout-form select,
       .checkout-form textarea {
-        padding: 10px 12px !important;
-        font-size: 13px !important;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+      
+      .modal-close {
+        top: 5px;
+        right: 10px;
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
       }
     }
 
     @media (max-width: 400px) {
       .modal-body {
-        padding: 1rem !important;
+        padding: 0 1rem 1rem 1rem;
       }
       
       .payment-methods {
-        gap: 0.5rem !important;
+        gap: 0.5rem;
       }
       
       .payment-method {
-        min-width: 60px !important;
-        padding: 0.5rem !important;
+        min-width: 60px;
+        padding: 0.5rem;
       }
       
       .payment-method i {
-        font-size: 1rem !important;
+        font-size: 1rem;
       }
       
       .payment-method span {
-        font-size: 0.65rem !important;
+        font-size: 0.65rem;
       }
     }
   </style>
@@ -605,12 +732,12 @@
     </div>
   </div>
 
-  <!-- MODAL DE CHECKOUT (SEM CAMPO EMAIL) -->
+  <!-- MODAL DE CHECKOUT CORRIGIDO -->
   <div class="modal" id="checkoutModal">
     <div class="modal-content">
       <button class="modal-close">&times;</button>
       <div class="modal-body">
-        <h2 style="margin-bottom: 1.5rem; text-align: center;">Finalizar Compra</h2>
+        <h2 style="margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem;">Finalizar Compra</h2>
         <form id="checkoutForm" class="checkout-form">
           <div class="form-group">
             <input type="text" id="checkoutName" placeholder="Nome completo" required>
@@ -655,7 +782,7 @@
           </div>
           <input type="hidden" id="checkoutPaymentMethod" value="dinheiro">
           
-          <button type="submit" class="checkout-btn" style="margin-top: 1.5rem;">
+          <button type="submit" class="checkout-btn">
             <i class="fab fa-whatsapp"></i> Enviar Pedido via WhatsApp
           </button>
         </form>
@@ -807,7 +934,7 @@
     }
 
     // ============================================================
-    // CHECKOUT (SEM EMAIL)
+    // CHECKOUT
     // ============================================================
     function openCheckoutModal() {
       const modal = document.getElementById('checkoutModal');

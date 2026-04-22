@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover">
+  <title>Meu Carrinho - VRTIGO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+  <link rel="icon" type="image/png" href="imagens/favicone.png"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+
+    /* Variáveis de tema */
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --bg-hover: #252525;
+      --text: #ffffff;
+      --text-secondary: #b0b0b0;
+      --primary: #C68AFF;
+      --secondary: #9b59b6;
+      --danger: #ff4757;
+      --success: #00eaff;
+      --border: #2a2a2a;
+      --gradient: linear-gradient(135deg, #C68AFF 0%, #9b59b6 100%);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-hover: #eeeeee;
+      --text: #1a1a1a;
+      --text-secondary: #666666;
+      --border: #e0e0e0;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg-secondary);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      cursor: pointer;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .header-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .header-btn:hover {
+      background: var(--bg-hover);
+      color: var(--primary);
+    }
+
+    /* Página do Carrinho */
+    .cart-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      min-height: calc(100vh - 70px);
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .cart-header h1 {
+      font-size: 2rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .clear-cart-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .clear-cart-btn:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    .cart-container {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .cart-container {
+        grid-template-columns: 1fr;
+      }
+      .cart-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Itens do Carrinho */
+    .cart-items {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .cart-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .cart-item-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .cart-item-details {
+      flex: 1;
+    }
+
+    .cart-item-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .cart-item-price {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 0.25rem;
+    }
+
+    .quantity-control button {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: var(--bg-secondary);
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .quantity-control button:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .quantity-control span {
+      min-width: 40px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .remove-item {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .remove-item:hover {
+      transform: scale(1.1);
+    }
+
+    .cart-item-subtotal {
+      text-align: right;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+
+    /* Resumo do Carrinho */
+    .cart-summary {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+    }
+
+    .cart-summary h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding: 0.5rem 0;
+      color: var(--text-secondary);
+    }
+
+    .summary-row.total {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      border-top: 2px solid var(--border);
+      margin-top: 1rem;
+      padding-top: 1rem;
+    }
+
+    .summary-row.total span:last-child {
+      color: var(--primary);
+      font-size: 1.4rem;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background: var(--gradient);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .checkout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(198, 138, 255, 0.4);
+    }
+
+    .continue-shopping {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .continue-shopping:hover {
+      text-decoration: underline;
+    }
+
+    /* Carrinho Vazio */
+    .empty-cart {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-cart i {
+      font-size: 5rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .empty-cart h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-cart p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    /* Modal de Checkout */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      max-width: 500px;
+      width: 90%;
+      background: var(--bg-primary);
+      border-radius: 20px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: var(--text);
+      z-index: 10;
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .checkout-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      width: 100%;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .payment-methods {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .payment-method {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .payment-method.selected {
+      border-color: var(--primary);
+      background: rgba(198, 138, 255, 0.1);
+    }
+
+    .payment-method i {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* Notificação */
+    .cart-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg-secondary);
+      color: var(--text);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+      border-left: 4px solid var(--primary);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    /* Botão Voltar */
+    .back-home {
+      margin-bottom: 1rem;
+    }
+
+    .back-home-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .back-home-btn:hover {
+      background: var(--bg-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo" onclick="window.location.href='index.html'">VRTIGO</div>
+    <div class="header-actions">
+      <button class="header-btn theme-toggle-btn" id="themeToggle">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="header-btn" onclick="window.location.href='index.html'">
+        <i class="fas fa-store"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="cart-page">
+    <div class="back-home">
+      <button class="back-home-btn" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i> Voltar para Loja
+      </button>
+    </div>
+
+    <div class="cart-header">
+      <h1><i class="fas fa-shopping-cart"></i> Meu Carrinho</h1>
+      <button id="clearCartBtn" class="clear-cart-btn">
+        <i class="fas fa-trash-alt"></i> Limpar Carrinho
+      </button>
+    </div>
+
+    <div id="cartContainer">
+      <!-- O conteúdo do carrinho será carregado via JavaScript -->
+    </div>
+  </div>
+
+  <!-- MODAL DE CHECKOUT -->
+  <div class="modal" id="checkoutModal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div class="modal-body">
+        <h2 style="margin-bottom: 1.5rem; text-align: center;">Finalizar Compra</h2>
+        <form id="checkoutForm" class="checkout-form">
+          <div class="form-group">
+            <input type="text" id="checkoutName" placeholder="Nome completo" required>
+          </div>
+          <div class="form-group">
+            <input type="tel" id="checkoutPhone" placeholder="Telefone/WhatsApp" required>
+          </div>
+          <div class="form-group">
+            <input type="text" id="checkoutAddress" placeholder="Endereço completo" required>
+          </div>
+          <div class="form-group">
+            <select id="checkoutCity" required>
+              <option value="">Selecione a cidade</option>
+              <option value="Maputo">Maputo</option>
+              <option value="Matola">Matola</option>
+              <option value="Beira">Beira</option>
+              <option value="Nampula">Nampula</option>
+              <option value="Tete">Tete</option>
+              <option value="Quelimane">Quelimane</option>
+              <option value="Chimoio">Chimoio</option>
+              <option value="Xai-Xai">Xai-Xai</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <textarea id="checkoutObservations" rows="3" placeholder="Observações (opcional)"></textarea>
+          </div>
+          
+          <h3 style="margin: 0.5rem 0;">Forma de Pagamento</h3>
+          <div class="payment-methods">
+            <div class="payment-method" data-method="dinheiro">
+              <i class="fas fa-money-bill-wave"></i>
+              <span>Dinheiro</span>
+            </div>
+            <div class="payment-method" data-method="cartao">
+              <i class="fas fa-credit-card"></i>
+              <span>Cartão</span>
+            </div>
+            <div class="payment-method" data-method="transferencia">
+              <i class="fas fa-exchange-alt"></i>
+              <span>Transferência</span>
+            </div>
+          </div>
+          <input type="hidden" id="checkoutPaymentMethod" value="dinheiro">
+          
+          <button type="submit" class="checkout-btn" style="margin-top: 1.5rem;">
+            <i class="fab fa-whatsapp"></i> Enviar Pedido via WhatsApp
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // CONFIGURAÇÃO
+    // ============================================================
+    const WHATSAPP_NUMBER = "918897319841";
+    let cartItems = [];
+
+    // ============================================================
+    // FUNÇÕES DO CARRINHO
+    // ============================================================
+    function loadCart() {
+      const savedCart = localStorage.getItem('vrtigoCart');
+      if (savedCart) {
+        cartItems = JSON.parse(savedCart);
+      } else {
+        cartItems = [];
+      }
+      renderCartPage();
+    }
+
+    function saveCart() {
+      localStorage.setItem('vrtigoCart', JSON.stringify(cartItems));
+      renderCartPage();
+    }
+
+    function removeFromCart(productId) {
+      const item = cartItems.find(i => i.id === productId);
+      if (item) {
+        cartItems = cartItems.filter(item => item.id !== productId);
+        saveCart();
+        showNotification(`${item.name} removido do carrinho`, 'remove');
+      }
+    }
+
+    function updateQuantity(productId, newQuantity) {
+      if (newQuantity < 1) {
+        removeFromCart(productId);
+        return;
+      }
+      const item = cartItems.find(item => item.id === productId);
+      if (item) {
+        item.quantity = newQuantity;
+        saveCart();
+      }
+    }
+
+    function clearCart() {
+      if (confirm('Tem certeza que deseja limpar todo o carrinho?')) {
+        cartItems = [];
+        saveCart();
+        showNotification('Carrinho limpo!', 'clear');
+      }
+    }
+
+    function calculateTotal() {
+      return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    }
+
+    function renderCartPage() {
+      const cartContainer = document.getElementById('cartContainer');
+      if (!cartContainer) return;
+      
+      if (cartItems.length === 0) {
+        cartContainer.innerHTML = `
+          <div class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <h3>Seu carrinho está vazio</h3>
+            <p>Adicione produtos clicando em "Comprar" na loja</p>
+            <button class="checkout-btn" onclick="window.location.href='index.html#loja'">
+              <i class="fas fa-store"></i> Continuar Comprando
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      cartContainer.innerHTML = `
+        <div class="cart-container">
+          <div class="cart-items">
+            ${cartItems.map(item => `
+              <div class="cart-item" data-id="${item.id}">
+                <img src="${item.img}" alt="${item.name}" class="cart-item-image" 
+                     onerror="this.src='https://via.placeholder.com/100x100/333/fff?text=${encodeURIComponent(item.name.substring(0, 10))}'">
+                <div class="cart-item-details">
+                  <h4 class="cart-item-title">${item.name}</h4>
+                  <div class="cart-item-price">R$ ${item.price.toFixed(2)}</div>
+                  <div class="cart-item-actions">
+                    <div class="quantity-control">
+                      <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                      <span>${item.quantity}</span>
+                      <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                    </div>
+                    <button class="remove-item" onclick="removeFromCart(${item.id})">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="cart-item-subtotal">
+                  R$ ${(item.price * item.quantity).toFixed(2)}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="cart-summary">
+            <h3>Resumo do Pedido</h3>
+            <div class="summary-row">
+              <span>Subtotal (${cartItems.reduce((s, i) => s + i.quantity, 0)} itens)</span>
+              <span>R$ ${calculateTotal().toFixed(2)}</span>
+            </div>
+            <div class="summary-row">
+              <span>Entrega</span>
+              <span>A calcular</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total</span>
+              <span>R$ ${calculateTotal().toFixed(2)}</span>
+            </div>
+            <button class="checkout-btn" onclick="openCheckoutModal()">
+              <i class="fas fa-credit-card"></i> Finalizar Compra
+            </button>
+            <a href="#" onclick="window.location.href='index.html#loja'; return false;" class="continue-shopping">
+              <i class="fas fa-arrow-left"></i> Continuar Comprando
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    function showNotification(message, type = 'add') {
+      const notification = document.createElement('div');
+      notification.className = 'cart-notification';
+      notification.innerHTML = `
+        <i class="fas ${type === 'add' ? 'fa-check-circle' : 'fa-trash-alt'}" style="margin-right: 10px;"></i>
+        ${message}
+      `;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // ============================================================
+    // CHECKOUT
+    // ============================================================
+    function openCheckoutModal() {
+      const modal = document.getElementById('checkoutModal');
+      if (modal) {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        
+        // Verificar se tem dados do usuário no localStorage
+        const savedUser = localStorage.getItem('vrtigoCurrentUser');
+        if (savedUser) {
+          const user = JSON.parse(savedUser);
+          document.getElementById('checkoutName').value = user.name || '';
+          document.getElementById('checkoutEmail').value = user.email || '';
+        }
+      }
+    }
+
+    function closeCheckoutModal() {
+      const modal = document.getElementById('checkoutModal');
+      if (modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    function getPaymentMethodName(method) {
+      const methods = {
+        'dinheiro': 'Dinheiro',
+        'cartao': 'Cartão (presencial)',
+        'transferencia': 'Transferência Bancária'
+      };
+      return methods[method] || method;
+    }
+
+    async function sendOrderToWhatsApp(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('checkoutName').value.trim();
+      const email = document.getElementById('checkoutEmail').value.trim();
+      const phone = document.getElementById('checkoutPhone').value.trim();
+      const address = document.getElementById('checkoutAddress').value.trim();
+      const city = document.getElementById('checkoutCity').value;
+      const observations = document.getElementById('checkoutObservations').value.trim();
+      const paymentMethod = document.getElementById('checkoutPaymentMethod').value;
+      
+      if (!name || !email || !phone || !address || !city) {
+        alert('Por favor, preencha todos os campos obrigatórios!');
+        return;
+      }
+      
+      // Montar mensagem do pedido
+      let message = `🛍️ *NOVO PEDIDO - VRTIGO* 🛍️\n\n`;
+      message += `👤 *Dados do Cliente:*\n`;
+      message += `Nome: ${name}\n`;
+      message += `Email: ${email}\n`;
+      message += `Telefone: ${phone}\n`;
+      message += `Endereço: ${address}\n`;
+      message += `Cidade: ${city}\n`;
+      if (observations) message += `Observações: ${observations}\n`;
+      message += `\n📦 *Produtos:*\n`;
+      
+      cartItems.forEach((item, index) => {
+        message += `${index + 1}. ${item.name}\n`;
+        message += `   Quantidade: ${item.quantity}\n`;
+        message += `   Preço unitário: R$ ${item.price.toFixed(2)}\n`;
+        message += `   Subtotal: R$ ${(item.price * item.quantity).toFixed(2)}\n\n`;
+      });
+      
+      message += `💰 *Resumo do Pedido:*\n`;
+      message += `Subtotal: R$ ${calculateTotal().toFixed(2)}\n`;
+      message += `Frete: A calcular na entrega\n`;
+      message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+      message += `TOTAL: R$ ${calculateTotal().toFixed(2)}\n`;
+      message += `\n💳 *Forma de Pagamento:* ${getPaymentMethodName(paymentMethod)}\n`;
+      message += `\n📅 *Data do Pedido:* ${new Date().toLocaleString('pt-BR')}\n`;
+      message += `\n🔗 *Enviado via Site VRTIGO*\n`;
+      message += `📍 *Link da Loja:* https://vrtigo.com`;
+      
+      // Enviar para o WhatsApp
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+      
+      // Perguntar se quer limpar o carrinho
+      if (confirm('✅ Pedido enviado com sucesso!\n\nDeseja limpar o carrinho?')) {
+        cartItems = [];
+        saveCart();
+        closeCheckoutModal();
+        renderCartPage();
+      } else {
+        closeCheckoutModal();
+      }
+    }
+
+    // ============================================================
+    // TEMA
+    // ============================================================
+    function initTheme() {
+      const saved = localStorage.getItem('vrtigoTheme');
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const themeToggle = document.getElementById('themeToggle');
+      const icon = themeToggle.querySelector('i');
+      
+      if (saved === 'light' || (!saved && !systemDark)) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        icon.classList.replace('fa-moon', 'fa-sun');
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        if (isLight) {
+          document.documentElement.removeAttribute('data-theme');
+          icon.classList.replace('fa-sun', 'fa-moon');
+          localStorage.setItem('vrtigoTheme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          icon.classList.replace('fa-moon', 'fa-sun');
+          localStorage.setItem('vrtigoTheme', 'light');
+        }
+      });
+    }
+
+    // ============================================================
+    // INICIALIZAÇÃO
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      initTheme();
+      loadCart();
+      
+      // Botão de limpar carrinho
+      const clearCartBtn = document.getElementById('clearCartBtn');
+      if (clearCartBtn) {
+        clearCartBtn.addEventListener('click', clearCart);
+      }
+      
+      // Modal de checkout
+      const checkoutModal = document.getElementById('checkoutModal');
+      if (checkoutModal) {
+        const closeBtn = checkoutModal.querySelector('.modal-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', closeCheckoutModal);
+        }
+        checkoutModal.addEventListener('click', (e) => {
+          if (e.target === checkoutModal) closeCheckoutModal();
+        });
+      }
+      
+      // Formulário de checkout
+      const checkoutForm = document.getElementById('checkoutForm');
+      if (checkoutForm) {
+        checkoutForm.addEventListener('submit', sendOrderToWhatsApp);
+      }
+      
+      // Métodos de pagamento
+      document.querySelectorAll('.payment-method').forEach(method => {
+        method.addEventListener('click', () => {
+          document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+          method.classList.add('selected');
+          document.getElementById('checkoutPaymentMethod').value = method.dataset.method;
+        });
+      });
+      
+      // Selecionar primeiro método de pagamento por padrão
+      const firstMethod = document.querySelector('.payment-method');
+      if (firstMethod) {
+        firstMethod.classList.add('selected');
+      }
+    });
+  </script>
+</body>
+</html>

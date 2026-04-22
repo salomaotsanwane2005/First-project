@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover">
+  <title>VRTIGO | Premium Clothing</title>
+  <meta name="description" content="VRTIGO - Camisetas oversized premium. Qualidade e estilo para o seu dia a dia.">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="imagens/favicone.png"/>
+  <style>
+    /* Estilos adicionais para formulários e modais */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      color: var(--text);
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(198, 138, 255, 0.1);
+    }
+    
+    .submit-btn {
+      background: var(--gradient);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(198, 138, 255, 0.3);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .modal-content {
+      max-width: 500px;
+      width: 90%;
+      background: var(--bg-primary);
+      border-radius: 20px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .login-modal-content {
+      max-width: 900px;
+      width: 90%;
+    }
+    
+    .user-dropdown {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+    
+    .user-dropdown.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .user-dropdown-content {
+      background: var(--bg-primary);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      min-width: 200px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    
+    .user-info {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-secondary);
+    }
+    
+    .user-info i {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+    
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      text-decoration: none;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .dropdown-item:hover {
+      background: var(--bg-secondary);
+    }
+    
+    .dropdown-item i {
+      width: 20px;
+      color: var(--primary);
+    }
+    
+    #login-message, #reset-message {
+      margin: 1rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .close-modal-btn {
+      cursor: pointer;
+    }
+    
+    .ghost {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .ghost:hover {
+      background: white;
+      color: var(--primary);
+    }
+    
+    @media (max-width: 768px) {
+      .login-modal-content {
+        width: 95%;
+      }
+    }
+    
+    /* Animações */
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+
+    .cart-notification {
+      animation: slideIn 0.3s ease;
+    }
+    
+    /* Loading spinner */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero-header">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <div class="logo">VRTIGO</div>
+        <div class="nav-controls">
+          <button class="nav-btn faq-btn" aria-label="FAQ">
+            <i class="fas fa-question"></i>
+          </button>
+          <button class="nav-btn cart-btn" aria-label="Carrinho">
+            <i class="fas fa-shopping-cart"></i>
+          </button>
+          <button class="nav-btn user-icon-btn" id="userIconBtn" aria-label="Usuário">
+            <i class="fas fa-user"></i>
+          </button>
+          <button class="nav-btn theme-toggle-btn" aria-label="Alternar tema">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <h1 class="welcome-title">Welcome to VRTIGO</h1>
+        <p class="welcome-subtitle">Premium Clothing Experience</p>
+        <div class="welcome-actions">
+          <button class="cta-btn primary" onclick="scrollToSection('#loja')">Shop Now</button>
+          <button class="cta-btn secondary" onclick="scrollToSection('#sobre')">Explore</button>
+        </div>
+      </div>
+      <div class="visual-element">
+        <div class="circle-animation"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section id="loja" class="content-section">
+      <div class="section-header">
+        <h2>Loja</h2>
+        <div class="section-controls">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="popular">Popular</button>
+          <button class="filter-btn" data-filter="new">New</button>
+        </div>
+      </div>
+      <div class="products-grid"></div>
+    </section>
+
+    <section id="sobre" class="content-section">
+      <div class="section-header">
+        <h2>Sobre</h2>
+      </div>
+      <div class="about-content">
+        <div class="about-text">
+          <p>A ideia de fazer vendas começou em 2023 com Salomao Tsanwane Junior e Aminudin Muendane. Inicialmente, queríamos revender produtos já feitos, pois Amin já vendia com alguma frequência.</p>
+          <p>Um certo dia surgiu a ideia de criar nossa própria marca de camisetas, comprando camisetas de qualidade, colocando estampas bonitas e vendendo. O mercado de estampas estava crescendo, e queríamos crescer junto.</p>
+          <p>Em 2025, retomamos o projeto com objetivos claros e assim nasceu a VRTIGO.</p>
+        </div>
+        <div class="about-stats">
+          <div class="stat">
+            <span class="stat-number">2023</span>
+            <span class="stat-label">Início</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">3</span>
+            <span class="stat-label">Fundadores</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">10+</span>
+            <span class="stat-label">Produtos</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contato" class="content-section">
+      <div class="section-header">
+        <h2>Contato</h2>
+        <button class="cta-btn secondary faq-btn">
+          <i class="fas fa-question-circle"></i>
+          Ver FAQ
+        </button>
+      </div>
+      <div class="contact-content">
+        <form id="contactForm" class="contact-form">
+          <div class="form-group">
+            <input type="text" name="nome" placeholder="Nome" required minlength="2">
+          </div>
+          <div class="form-group">
+            <input type="email" name="email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="text" name="assunto" placeholder="Assunto" required minlength="3">
+          </div>
+          <div class="form-group">
+            <textarea name="mensagem" placeholder="Mensagem" required minlength="10" rows="5"></textarea>
+          </div>
+          <button type="submit" class="submit-btn">Enviar Mensagem</button>
+        </form>
+        <div class="contact-info">
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>Salomaojun005@gmail.com</span>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <span>+91 8897319841</span>
+          </div>
+          <div class="contact-item">
+            <i class="fab fa-whatsapp"></i>
+            <span><a href="https://wa.me/918897319841?text=👋%20Olá!%20Meu%20nome%20é%20_____%0A%0A📝%20Apresente%20a%20sua%20preocupação%20e%20lhe%20responderemos%20em%20breve!%20😊" target="_blank" style="color: var(--text); text-decoration: none;">WhatsApp: +91 8897319841</a></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="saves" class="content-section">
+      <div class="section-header">
+        <h2>Favoritos</h2>
+        <span class="saves-count">0 itens</span>
+      </div>
+      <div class="saves-grid" id="saves-grid"></div>
+      <div id="no-saves" class="no-saves">
+        <i class="far fa-heart"></i>
+        <h3>Nenhum favorito ainda</h3>
+        <p>Salve seus produtos favoritos clicando no coração</p>
+        <button class="cta-btn primary" onclick="scrollToSection('#loja')">Explorar Loja</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation - SEM o link do carrinho -->
+  <nav class="bottom-nav">
+    <a href="#loja" class="nav-item active" data-nav="loja">
+      <i class="fas fa-store"></i>
+      <span>Loja</span>
+    </a>
+    <a href="#sobre" class="nav-item" data-nav="sobre">
+      <i class="fas fa-info-circle"></i>
+      <span>Sobre</span>
+    </a>
+    <a href="#contato" class="nav-item" data-nav="contato">
+      <i class="fas fa-envelope"></i>
+      <span>Contato</span>
+    </a>
+    <a href="#saves" class="nav-item" data-nav="saves">
+      <i class="fas fa-heart"></i>
+      <span>Favoritos</span>
+    </a>
+  </nav>
+
+  <!-- Modal Produto -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <button class="modal-save-btn"><i class="far fa-heart"></i></button>
+      <button class="modal-close">&times;</button>
+      <div class="modal-body" id="productModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Modal FAQ -->
+  <div class="modal" id="faqModal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div class="modal-body">
+        <div class="faq-content">
+          <div class="faq-placeholder">
+            <i class="fas fa-question-circle"></i>
+            <h3>FAQs em construção!</h3>
+            <p>Nossa equipe está preparando as perguntas mais frequentes para você.</p>
+            <p>Enquanto isso, entre em contato pelo formulário na seção contatos! 👇</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação de Contato -->
+  <div class="modal" id="contactModal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div class="modal-body">
+        <div style="text-align: center; padding: 2rem;">
+          <i class="fas fa-check-circle" style="font-size: 4rem; color: #C68AFF; margin-bottom: 1rem;"></i>
+          <h3 style="margin-bottom: 1rem; color: var(--text);">Mensagem Enviada!</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 2rem;">Entraremos em contato em breve.</p>
+          <button class="cta-btn primary close-modal-btn" style="margin-top: 1rem;">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DROPDOWN DO USUÁRIO -->
+  <div class="user-dropdown" id="userDropdownMenu">
+    <div class="user-dropdown-content">
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span id="dropdownUserName">Visitante</span>
+      </div>
+      <div class="dropdown-divider"></div>
+      <a href="#" id="dropdownFavoritos" class="dropdown-item">
+        <i class="fas fa-heart"></i> Meus Favoritos
+      </a>
+      <a href="#" id="dropdownSair" class="dropdown-item">
+        <i class="fas fa-sign-out-alt"></i> Sair
+      </a>
+    </div>
+  </div>
+
+  <!-- MODAL DE LOGIN COM OVERLAY -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content login-modal-content">
+      <button class="modal-close close-modal-btn">&times;</button>
+      <div class="modal-body" style="padding: 0; overflow: hidden;">
+        <div class="form-container" id="container">
+          <div class="form-container sign-up-container">
+            <form id="signupForm">
+              <h2>Criar Conta</h2>
+              <div class="form-group">
+                <input type="text" id="signupName" placeholder="Nome completo" required>
+              </div>
+              <div class="form-group">
+                <input type="email" id="signupEmail" placeholder="Email" required>
+              </div>
+              <div class="form-group">
+                <input type="password" id="signupPassword" placeholder="Senha (mínimo 6 caracteres)" required>
+              </div>
+              <div class="form-group">
+                <input type="password" id="signupConfirmPassword" placeholder="Confirmar senha" required>
+              </div>
+              <button type="submit" class="submit-btn">Cadastrar</button>
+            </form>
+          </div>
+          <div class="form-container sign-in-container">
+            <form id="loginForm">
+              <h2>Entrar</h2>
+              <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+              </div>
+              <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Senha" required>
+              </div>
+              <a href="#" id="forgotPasswordLink" style="color: var(--primary); text-decoration: none; font-size: 14px; margin: 10px 0; display: inline-block;">Esqueceu a senha?</a>
+              <button type="submit" class="submit-btn">Entrar</button>
+            </form>
+          </div>
+          <div class="overlay-container">
+            <div class="overlay">
+              <div class="overlay-panel overlay-left">
+                <h2>Bem-vindo de volta!</h2>
+                <p>Já tem uma conta? Faça login para continuar</p>
+                <button class="ghost" id="signIn">Entrar</button>
+              </div>
+              <div class="overlay-panel overlay-right">
+                <h2>Olá, amigo!</h2>
+                <p>Não tem uma conta? Cadastre-se aqui</p>
+                <button class="ghost" id="signUp">Cadastrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="login-message" style="display: none; margin: 1rem; padding: 0.5rem; border-radius: 8px; text-align: center;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE RECUPERAÇÃO DE SENHA -->
+  <div class="modal" id="forgotPasswordModal">
+    <div class="modal-content">
+      <button class="modal-close close-modal-btn">&times;</button>
+      <div class="modal-body">
+        <div style="text-align: center;">
+          <i class="fas fa-key" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+          <h3 style="margin-bottom: 1rem;">Recuperar Senha</h3>
+          <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+            Digite seu email e enviaremos um link para redefinir sua senha.
+          </p>
+          <div id="reset-message" style="display: none;"></div>
+          <div class="form-group">
+            <input type="email" id="reset-email" placeholder="Seu email" required>
+          </div>
+          <button id="send-reset-code" class="submit-btn" style="width: 100%;">Enviar Link de Recuperação</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Função global para scrollToSection -->
+  <script>
+    function scrollToSection(sectionId) {
+      const section = document.querySelector(sectionId);
+      if (section) {
+        const offset = 80;
+        const elementPosition = section.offsetTop - offset;
+        window.scrollTo({ top: elementPosition, behavior: 'smooth' });
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>

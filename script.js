@@ -2458,117 +2458,225 @@ document.addEventListener('keydown', (e) => {
     </div>
   </div>
 
-  <!-- ============================================ -->
-  <!-- MODAL DE LOGIN COM CONTROLE DE AUTOFILL      -->
-  <!-- ============================================ -->
-  <div class="modal" id="loginModal">
-    <div class="modal-content login-modal-content">
-      <button class="modal-close close-modal-btn">&times;</button>
-      
-      <!-- CONTROLE DE AUTOFILL (aparece apenas quando logado) -->
-      <div class="autofill-control" id="autofillControl">
-        <span class="switch-label">
-          <span class="icon">🔒</span>
-          <span>Autofill</span>
-        </span>
-        <label class="switch">
-          <input type="checkbox" id="autofillToggle" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
+ // ============================================
+// AUTOFILL CONTROL - Supabase + localStorage fallback
+// ============================================
+// CODE
 
-      <div class="modal-body" style="padding: 0; overflow: hidden;">
-        <div class="form-container" id="container">
-          <div class="form-container sign-up-container">
-            <form id="signupForm">
-              <h2>Criar Conta</h2>
-              <div class="form-group">
-                <input type="text" id="signupName" placeholder="Nome completo" required>
-              </div>
-              <div class="form-group">
-                <input type="email" id="signupEmail" placeholder="Email" required>
-              </div>
-              <div class="form-group">
-                <input type="password" id="signupPassword" placeholder="Senha (mínimo 6 caracteres)" required>
-              </div>
-              <div class="form-group">
-                <input type="password" id="signupConfirmPassword" placeholder="Confirmar senha" required>
-              </div>
-              <button type="submit" class="submit-btn">Cadastrar</button>
-            </form>
-          </div>
-          <div class="form-container sign-in-container">
-            <form id="loginForm">
-              <h2>Entrar</h2>
-              <div class="form-group">
-                <input type="email" id="loginEmail" placeholder="Email" required>
-              </div>
-              <div class="form-group">
-                <input type="password" id="loginPassword" placeholder="Senha" required>
-              </div>
-              <a href="#" id="forgotPasswordLink" style="color: var(--primary); text-decoration: none; font-size: 14px; margin: 10px 0; display: inline-block;">Esqueceu a senha?</a>
-              <button type="submit" class="submit-btn">Entrar</button>
-            </form>
-          </div>
-          <div class="overlay-container">
-            <div class="overlay">
-              <div class="overlay-panel overlay-left">
-                <h2>Bem-vindo de volta!</h2>
-                <p>Já tem uma conta? Faça login para continuar</p>
-                <button class="ghost" id="signIn">Entrar</button>
-              </div>
-              <div class="overlay-panel overlay-right">
-                <h2>Olá, amigo!</h2>
-                <p>Não tem uma conta? Cadastre-se aqui</p>
-                <button class="ghost" id="signUp">Cadastrar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div id="login-message" style="display: none; margin: 1rem; padding: 0.5rem; border-radius: 8px; text-align: center;"></div>
-      </div>
-    </div>
-  </div>
+class AutofillControl {
+  constructor() {
+    this.toggle = document.getElementById('autofillToggle');
+    this.control = document.getElementById('autofillControl');
+    this.currentUser = null;
+    this.isLoading = false;
+    this.isAuthenticated = false;
+    
+    this.init();
+  }
 
-  <!-- MODAL DE RECUPERAÇÃO DE SENHA -->
-  <div class="modal" id="forgotPasswordModal">
-    <div class="modal-content">
-      <button class="modal-close close-modal-btn">&times;</button>
-      <div class="modal-body">
-        <div style="text-align: center;">
-          <i class="fas fa-key" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
-          <h3 style="margin-bottom: 1rem;">Recuperar Senha</h3>
-          <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
-            Digite seu email e enviaremos um link para redefinir sua senha.
-          </p>
-          <div id="reset-message" style="display: none;"></div>
-          <div class="form-group">
-            <input type="email" id="reset-email" placeholder="Seu email" required>
-          </div>
-          <button id="send-reset-code" class="submit-btn" style="width: 100%;">Enviar Link de Recuperação</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================================ -->
-  <!-- SCRIPTS                                      -->
-  <!-- ============================================ -->
-  <script>
-    function scrollToSection(sectionId) {
-      const section = document.querySelector(sectionId);
-      if (section) {
-        const offset = 80;
-        const elementPosition = section.offsetTop - offset;
-        window.scrollTo({ top: elementPosition, behavior: 'smooth' });
-      }
+  // ===== INICIALIZAÇÃO =====
+  async init() {
+    await this.getCurrentUser();
+    
+    if (this.isAuthenticated && this.currentUser) {
+      this.control.style.display = 'flex';
+      await this.loadPreference();
+      this.applyAutofill();
+      this.toggle.addEventListener('change', () => this.handleToggleChange());
     }
-  </script>
+  }
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js"></script>
-</body>
-</html>
+  // ===== GET CURRENT USER =====
+  async getCurrentUser() {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error) throw error;
+      
+      if (user) {
+        this.currentUser = user;
+        this.isAuthenticated = true;
+        console.log('✅ Usuário autenticado:', user.email);
+      } else {
+        this.isAuthenticated = false;
+        console.log('ℹ️ Nenhum usuário autenticado');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao buscar usuário:', error);
+      this.isAuthenticated = false;
+    }
+  }
+
+  // ===== CARREGAR PREFERÊNCIA (Supabase → localStorage fallback) =====
+  async loadPreference() {
+    if (!this.currentUser) return;
+    
+    this.isLoading = true;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('autofill_enabled')
+        .eq('id', this.currentUser.id)
+        .maybeSingle();
+
+      if (!error && data !== null) {
+        const enabled = data.autofill_enabled ?? true;
+        this.toggle.checked = enabled;
+        console.log('✅ Preferência carregada do Supabase:', enabled);
+      } else {
+        throw new Error('Dado não encontrado no Supabase');
+      }
+    } catch (error) {
+      console.warn('⚠️ Erro ao buscar do Supabase. Buscando no localStorage (fallback)...');
+      
+      const fallbackKey = `autofill_pref_${this.currentUser.id}`;
+      const fallbackData = localStorage.getItem(fallbackKey);
+      
+      if (fallbackData !== null) {
+        const enabled = JSON.parse(fallbackData);
+        this.toggle.checked = enabled;
+        console.log('✅ Preferência carregada do localStorage (fallback):', enabled);
+      } else {
+        this.toggle.checked = true;
+        console.log('ℹ️ Usando valor padrão (true)');
+      }
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // ===== SALVAR PREFERÊNCIA (Supabase → localStorage fallback) =====
+  async savePreference(enabled) {
+    if (!this.currentUser) return;
+    
+    this.isLoading = true;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ autofill_enabled: enabled })
+        .eq('id', this.currentUser.id);
+
+      if (error) throw error;
+
+      console.log('✅ Preferência salva no Supabase:', enabled);
+      localStorage.removeItem(`autofill_pref_${this.currentUser.id}`);
+      
+    } catch (error) {
+      console.warn('⚠️ Erro ao salvar no Supabase. Salvando no localStorage (fallback)...');
+      
+      const fallbackKey = `autofill_pref_${this.currentUser.id}`;
+      localStorage.setItem(fallbackKey, JSON.stringify(enabled));
+      console.log('✅ Preferência salva no localStorage (fallback):', enabled);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // ===== APLICAR AUTOFILL NOS INPUTS =====
+  applyAutofill() {
+    const enabled = this.toggle.checked;
+    
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    const signupEmail = document.getElementById('signupEmail');
+    const signupPassword = document.getElementById('signupPassword');
+    const signupConfirm = document.getElementById('signupConfirmPassword');
+    const signupName = document.getElementById('signupName');
+
+    const setAutocomplete = (input, value) => {
+      if (input) {
+        if (value) {
+          input.setAttribute('autocomplete', value);
+        } else {
+          input.setAttribute('autocomplete', 'off');
+        }
+      }
+    };
+
+    if (enabled) {
+      setAutocomplete(loginEmail, 'email');
+      setAutocomplete(loginPassword, 'current-password');
+      setAutocomplete(signupEmail, 'new-email');
+      setAutocomplete(signupPassword, 'new-password');
+      setAutocomplete(signupConfirm, 'new-password');
+      setAutocomplete(signupName, 'off');
+      console.log('🔓 Autofill ATIVADO');
+    } else {
+      setAutocomplete(loginEmail, 'off');
+      setAutocomplete(loginPassword, 'off');
+      setAutocomplete(signupEmail, 'off');
+      setAutocomplete(signupPassword, 'off');
+      setAutocomplete(signupConfirm, 'off');
+      setAutocomplete(signupName, 'off');
+      
+      if (loginEmail) loginEmail.value = '';
+      if (loginPassword) loginPassword.value = '';
+      if (signupEmail) signupEmail.value = '';
+      if (signupPassword) signupPassword.value = '';
+      if (signupConfirm) signupConfirm.value = '';
+      if (signupName) signupName.value = '';
+      
+      console.log('🔒 Autofill DESATIVADO');
+    }
+  }
+
+  // ===== HANDLER DO TOGGLE =====
+  handleToggleChange() {
+    if (this.isLoading) return;
+    
+    const enabled = this.toggle.checked;
+    this.applyAutofill();
+    this.savePreference(enabled);
+  }
+
+  // ===== SYNC PREFERENCE =====
+  async syncPreference() {
+    if (!this.currentUser) return;
+    
+    console.log('🔄 Sincronizando preferência...');
+    localStorage.removeItem(`autofill_pref_${this.currentUser.id}`);
+    await this.loadPreference();
+    this.applyAutofill();
+  }
+}
+
+// ============================================
+// INICIALIZAR CONTROLE DE AUTOFILL
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.autofillControl = new AutofillControl();
+});
+
+// ============================================
+// FUNÇÕES AUXILIARES
+// ============================================
+
+function isAutofillEnabled() {
+  if (window.autofillControl) {
+    return window.autofillControl.toggle.checked;
+  }
+  return true;
+}
+
+function syncAutofillPreference() {
+  if (window.autofillControl) {
+    window.autofillControl.syncPreference();
+  }
+}
+
+function showAutofillControl(show) {
+  const control = document.getElementById('autofillControl');
+  if (control) {
+    control.style.display = show ? 'flex' : 'none';
+  }
+}
+
+window.isAutofillEnabled = isAutofillEnabled;
+window.syncAutofillPreference = syncAutofillPreference;
+window.showAutofillControl = showAutofillControl;
 
 // ============================================================
 // INICIALIZAÇÃO PRINCIPAL

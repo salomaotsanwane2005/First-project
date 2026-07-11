@@ -1075,6 +1075,260 @@
         font-size: 1.2rem;
       }
     }
+
+    /* ============================================
+       CORREÇÃO DO MODAL DE LOGIN - SOBRESCREVER CSS EXTERNO
+       ============================================ */
+
+    /* Forçar o container do login a ter o layout correto */
+    #container {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      position: relative !important;
+      min-height: 580px !important;
+      background: var(--bg-primary) !important;
+      border-radius: 20px !important;
+      overflow: hidden !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    /* Posicionamento correto dos formulários */
+    .form-container {
+      position: absolute !important;
+      top: 0 !important;
+      height: 100% !important;
+      transition: all 0.6s ease-in-out !important;
+      padding: 40px 30px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: var(--bg-primary) !important;
+    }
+
+    .sign-in-container {
+      left: 0 !important;
+      width: 50% !important;
+      z-index: 2 !important;
+    }
+
+    #container.right-panel-active .sign-in-container {
+      transform: translateX(100%) !important;
+    }
+
+    .sign-up-container {
+      left: 0 !important;
+      width: 50% !important;
+      opacity: 0 !important;
+      z-index: 1 !important;
+    }
+
+    #container.right-panel-active .sign-up-container {
+      transform: translateX(100%) !important;
+      opacity: 1 !important;
+      z-index: 5 !important;
+    }
+
+    /* Overlay */
+    .overlay-container {
+      position: absolute !important;
+      top: 0 !important;
+      left: 50% !important;
+      width: 50% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      transition: transform 0.6s ease-in-out !important;
+      z-index: 100 !important;
+      display: block !important;
+      border-radius: 0 20px 20px 0 !important;
+    }
+
+    #container.right-panel-active .overlay-container {
+      transform: translateX(-100%) !important;
+    }
+
+    .overlay {
+      background: var(--gradient) !important;
+      background-repeat: no-repeat !important;
+      background-size: cover !important;
+      background-position: 0 0 !important;
+      color: #FFFFFF !important;
+      position: relative !important;
+      left: -100% !important;
+      height: 100% !important;
+      width: 200% !important;
+      transform: translateX(0) !important;
+      transition: transform 0.6s ease-in-out !important;
+    }
+
+    #container.right-panel-active .overlay {
+      transform: translateX(50%) !important;
+    }
+
+    .overlay-panel {
+      position: absolute !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-direction: column !important;
+      padding: 0 40px !important;
+      text-align: center !important;
+      top: 0 !important;
+      height: 100% !important;
+      width: 50% !important;
+      transform: translateX(0) !important;
+      transition: transform 0.6s ease-in-out !important;
+    }
+
+    .overlay-left {
+      transform: translateX(-20%) !important;
+    }
+
+    #container.right-panel-active .overlay-left {
+      transform: translateX(0) !important;
+    }
+
+    .overlay-right {
+      right: 0 !important;
+      transform: translateX(0) !important;
+    }
+
+    #container.right-panel-active .overlay-right {
+      transform: translateX(20%) !important;
+    }
+
+    .overlay-panel h2 {
+      color: white !important;
+      margin-bottom: 1rem !important;
+      font-size: 1.8rem !important;
+    }
+
+    .overlay-panel p {
+      font-size: 14px !important;
+      font-weight: 300 !important;
+      margin: 20px 0 30px !important;
+      color: rgba(255,255,255,0.9) !important;
+    }
+
+    /* Formulários dentro do modal */
+    #signupForm, #loginForm {
+      background: transparent !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-direction: column !important;
+      padding: 0 30px !important;
+      height: 100% !important;
+      text-align: center !important;
+      width: 100% !important;
+      max-width: 320px !important;
+    }
+
+    #signupForm h2, #loginForm h2 {
+      color: var(--text) !important;
+      margin-bottom: 20px !important;
+      font-size: 1.5rem !important;
+    }
+
+    #signupForm .form-group, #loginForm .form-group {
+      width: 100% !important;
+      margin: 8px 0 !important;
+    }
+
+    #signupForm input, #loginForm input {
+      background: var(--bg-secondary) !important;
+      border: 1px solid var(--border) !important;
+      padding: 12px 15px !important;
+      width: 100% !important;
+      border-radius: 8px !important;
+      color: var(--text) !important;
+      font-size: 16px !important;
+    }
+
+    #signupForm input:focus, #loginForm input:focus {
+      outline: none !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(198, 138, 255, 0.1) !important;
+    }
+
+    #signupForm .submit-btn, #loginForm .submit-btn {
+      margin-top: 10px !important;
+      width: 100% !important;
+      padding: 12px !important;
+    }
+
+    /* Forçar o modal de login a ter o layout correto */
+    .login-modal-content {
+      max-width: 900px !important;
+      width: 90% !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+    }
+
+    /* Ajustes para telas pequenas */
+    @media (max-width: 768px) {
+      .sign-in-container,
+      .sign-up-container {
+        width: 100% !important;
+        position: relative !important;
+        transform: none !important;
+        opacity: 1 !important;
+        min-height: 400px !important;
+      }
+
+      #container {
+        flex-direction: column !important;
+        min-height: auto !important;
+        flex-wrap: wrap !important;
+      }
+
+      #container.right-panel-active .sign-in-container {
+        transform: none !important;
+      }
+
+      #container.right-panel-active .sign-up-container {
+        transform: none !important;
+      }
+
+      .overlay-container {
+        display: none !important;
+      }
+
+      .form-container {
+        position: relative !important;
+        padding: 30px 20px !important;
+      }
+
+      #signupForm, #loginForm {
+        padding: 0 20px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .form-container {
+        padding: 20px 16px !important;
+      }
+
+      #signupForm h2, #loginForm h2 {
+        font-size: 1.2rem !important;
+      }
+
+      #signupForm input, #loginForm input {
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+      }
+
+      .ghost {
+        padding: 8px 20px !important;
+        font-size: 12px !important;
+      }
+
+      .submit-btn {
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+      }
+    }
   </style>
 </head>
 <body>

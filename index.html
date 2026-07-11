@@ -412,25 +412,25 @@
   </div>
 
   <!-- MODAL DE LOGIN COM OVERLAY -->
-  <div class="modal" id="loginModal">
+<div class="modal" id="loginModal">
     <div class="modal-content login-modal-content">
       <button class="modal-close close-modal-btn">&times;</button>
       <div class="modal-body" style="padding: 0; overflow: hidden;">
         <div class="form-container" id="container">
           <div class="form-container sign-up-container">
-            <form id="signupForm">
+            <form id="signupForm" autocomplete="off">
               <h2>Criar Conta</h2>
               <div class="form-group">
-                <input type="text" id="signupName" placeholder="Nome completo" required>
+                <input type="text" id="signupName" placeholder="Nome completo" required autocomplete="off">
               </div>
               <div class="form-group">
-                <input type="email" id="signupEmail" placeholder="Email" required>
+                <input type="email" id="signupEmail" placeholder="Email" required autocomplete="new-email">
               </div>
               <div class="form-group">
-                <input type="password" id="signupPassword" placeholder="Senha (mínimo 6 caracteres)" required>
+                <input type="password" id="signupPassword" placeholder="Senha (mínimo 6 caracteres)" required autocomplete="new-password">
               </div>
               <div class="form-group">
-                <input type="password" id="signupConfirmPassword" placeholder="Confirmar senha" required>
+                <input type="password" id="signupConfirmPassword" placeholder="Confirmar senha" required autocomplete="new-password">
               </div>
               <button type="submit" class="submit-btn">Cadastrar</button>
             </form>
@@ -439,10 +439,10 @@
             <form id="loginForm">
               <h2>Entrar</h2>
               <div class="form-group">
-                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
               </div>
               <div class="form-group">
-                <input type="password" id="loginPassword" placeholder="Senha" required>
+                <input type="password" id="loginPassword" placeholder="Senha" required autocomplete="current-password">
               </div>
               <a href="#" id="forgotPasswordLink" style="color: var(--primary); text-decoration: none; font-size: 14px; margin: 10px 0; display: inline-block;">Esqueceu a senha?</a>
               <button type="submit" class="submit-btn">Entrar</button>

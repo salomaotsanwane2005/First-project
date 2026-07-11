@@ -1168,7 +1168,7 @@ document.addEventListener('keydown', (e) => {
   } 
 });
 
- // ============================================
+// ============================================
 // AUTOFILL CONTROL - Supabase + localStorage fallback
 // ============================================
 // CODE
@@ -1199,7 +1199,8 @@ class AutofillControl {
   // ===== GET CURRENT USER =====
   async getCurrentUser() {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
+      // ✅ CORRIGIDO: usar supabaseClient
+      const { data: { user }, error } = await supabaseClient.auth.getUser();
       
       if (error) throw error;
       
@@ -1224,7 +1225,8 @@ class AutofillControl {
     this.isLoading = true;
     
     try {
-      const { data, error } = await supabase
+      // ✅ CORRIGIDO: usar supabaseClient
+      const { data, error } = await supabaseClient
         .from('profiles')
         .select('autofill_enabled')
         .eq('id', this.currentUser.id)
@@ -1263,7 +1265,8 @@ class AutofillControl {
     this.isLoading = true;
     
     try {
-      const { error } = await supabase
+      // ✅ CORRIGIDO: usar supabaseClient
+      const { error } = await supabaseClient
         .from('profiles')
         .update({ autofill_enabled: enabled })
         .eq('id', this.currentUser.id);
@@ -1356,10 +1359,6 @@ class AutofillControl {
 // INICIALIZAR CONTROLE DE AUTOFILL
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-  window.autofillControl = new AutofillControl();
-});
-
 // ============================================
 // FUNÇÕES AUXILIARES
 // ============================================
@@ -1402,6 +1401,9 @@ document.addEventListener("DOMContentLoaded", async function() {
   initThemeToggle();
   initFilters();
   initLoginSystem();
+  
+  // ✅ INICIALIZAR AUTOFILL CONTROL
+  window.autofillControl = new AutofillControl();
   
   await carregarProdutos();
   

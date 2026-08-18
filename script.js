@@ -787,14 +787,18 @@ function initThemeToggle() {
 // ============================================================
 // SISTEMA DE LOGIN SIMPLIFICADO
 // ============================================================
-
 function setupSupabase() {
   if (supabaseInitialized) return true;
   
   if (window.supabase && window.supabase.createClient) {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        flowType: 'pkce',
+        detectSessionInUrl: true
+      }
+    });
     supabaseInitialized = true;
-    console.log("✅ Supabase iniciado");
+    console.log("✅ Supabase iniciado com PKCE");
     return true;
   }
   console.error("❌ Supabase não encontrado");

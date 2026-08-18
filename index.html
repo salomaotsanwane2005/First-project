@@ -1,1185 +1,719 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Redefinir Senha</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* ===========================
-           RESET E VARIÁVEIS
-           =========================== */
-        :root {
-            --primary: #C68AFF;
-            --primary-dark: #9b5fe0;
-            --primary-light: #e8d5ff;
-            --secondary: #00eaff;
-            --secondary-dark: #00b8cc;
-            --accent: #ff5050;
-            --background: #0a0a0a;
-            --surface: #1a1a1a;
-            --surface-light: #2a2a2a;
-            --surface-hover: #333333;
-            --text: #ffffff;
-            --text-secondary: #b0b0b0;
-            --text-muted: #666666;
-            --border: #333333;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --shadow-glow: 0 0 60px rgba(198, 138, 255, 0.15);
-            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-            --gradient-dark: linear-gradient(135deg, var(--primary-dark), #0099cc);
-            --gradient-bg: linear-gradient(135deg, #1a1a1a 0%, #2a1a35 50%, #1a2a35 100%);
-            --success: #00e676;
-            --error: #ff5252;
-            --warning: #ffa726;
-            --radius: 20px;
-            --radius-sm: 12px;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Fundo com partículas */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(198, 138, 255, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(0, 234, 255, 0.05) 0%, transparent 50%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ===========================
-           CONTAINER PRINCIPAL
-           =========================== */
-        .reset-container {
-            width: 100%;
-            max-width: 480px;
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 2.5rem 2rem;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow), var(--shadow-glow);
-            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            z-index: 1;
-            backdrop-filter: blur(20px);
-            background: rgba(26, 26, 26, 0.95);
-        }
-
-        .reset-container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: calc(var(--radius) + 2px);
-            background: var(--gradient);
-            z-index: -1;
-            opacity: 0.3;
-            filter: blur(10px);
-            animation: pulseBorder 3s ease-in-out infinite;
-        }
-
-        @keyframes pulseBorder {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(60px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* ===========================
-           HEADER
-           =========================== */
-        .reset-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .reset-logo {
-            display: inline-block;
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-            text-decoration: none;
-            letter-spacing: -1px;
-            position: relative;
-        }
-
-        .reset-logo i {
-            -webkit-text-fill-color: var(--primary);
-            margin-right: 4px;
-        }
-
-        .reset-header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-
-        .reset-header p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 300;
-        }
-
-        /* ===========================
-           ICONE DE DESTAQUE
-           =========================== */
-        .reset-icon-wrapper {
-            position: relative;
-            display: inline-block;
-            margin: 0 auto 1.5rem;
-        }
-
-        .reset-icon {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(198, 138, 255, 0.15), rgba(0, 234, 255, 0.05));
-            border: 2px solid var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: var(--primary);
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .reset-icon .pulse-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            animation: pulseRing 2s ease-out infinite;
-            opacity: 0;
-        }
-
-        @keyframes pulseRing {
-            0% { transform: scale(1); opacity: 0.6; }
-            100% { transform: scale(1.4); opacity: 0; }
-        }
-
-        .reset-icon.success {
-            border-color: var(--success);
-            color: var(--success);
-            background: linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(0, 234, 255, 0.05));
-        }
-
-        .reset-icon.success .pulse-ring {
-            border-color: var(--success);
-        }
-
-        .reset-icon.error {
-            border-color: var(--error);
-            color: var(--error);
-            background: linear-gradient(135deg, rgba(255, 82, 82, 0.15), rgba(255, 82, 82, 0.05));
-        }
-
-        .reset-icon.error .pulse-ring {
-            border-color: var(--error);
-        }
-
-        @keyframes pulseRing {
-            0% { transform: scale(1); opacity: 0.6; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-
-        /* ===========================
-           FORMULÁRIO
-           =========================== */
-        .reset-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: var(--surface-light);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            overflow: hidden;
-        }
-
-        .form-group .input-wrapper:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(198, 138, 255, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .form-group .input-wrapper .input-icon {
-            padding: 0 0 0 1rem;
-            color: var(--text-muted);
-            font-size: 1rem;
-            flex-shrink: 0;
-            transition: var(--transition);
-        }
-
-        .form-group .input-wrapper:focus-within .input-icon {
-            color: var(--primary);
-        }
-
-        .form-group .input-wrapper input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--text);
-            font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px !important;
-            transition: var(--transition);
-        }
-
-        .form-group .input-wrapper input::placeholder {
-            color: var(--text-muted);
-            font-weight: 300;
-        }
-
-        .form-group .input-wrapper .toggle-password {
-            padding: 0 1rem 0 0.5rem;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
-            flex-shrink: 0;
-            min-height: 44px;
-            min-width: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .form-group .input-wrapper .toggle-password:hover {
-            color: var(--text-secondary);
-        }
-
-        /* ===========================
-           FORÇA DA SENHA
-           =========================== */
-        .password-strength {
-            margin-top: 0.3rem;
-            display: flex;
-            gap: 0.3rem;
-            align-items: center;
-        }
-
-        .password-strength .bar {
-            flex: 1;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            transition: var(--transition);
-        }
-
-        .password-strength .bar.active.weak {
-            background: var(--error);
-            box-shadow: 0 0 10px rgba(255, 82, 82, 0.3);
-        }
-
-        .password-strength .bar.active.medium {
-            background: var(--warning);
-            box-shadow: 0 0 10px rgba(255, 167, 38, 0.3);
-        }
-
-        .password-strength .bar.active.strong {
-            background: var(--success);
-            box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
-        }
-
-        .password-strength .label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            min-width: 45px;
-            text-align: right;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .password-hint {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .password-hint i {
-            font-size: 0.7rem;
-        }
-
-        /* ===========================
-           BOTÕES
-           =========================== */
-        .reset-btn {
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
-            min-height: 50px;
-            background: var(--gradient);
-            color: var(--background);
-            box-shadow: 0 4px 20px rgba(198, 138, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .reset-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: 0.5s;
-        }
-
-        .reset-btn:hover:not(:disabled)::before {
-            left: 100%;
-        }
-
-        .reset-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(198, 138, 255, 0.5);
-        }
-
-        .reset-btn:active:not(:disabled) {
-            transform: scale(0.97);
-        }
-
-        .reset-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .reset-btn .spinner {
-            display: none;
-            width: 22px;
-            height: 22px;
-            border: 3px solid var(--background);
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        .reset-btn.loading .spinner {
-            display: inline-block;
-        }
-
-        .reset-btn.loading .btn-text {
-            display: none;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ===========================
-           MENSAGENS
-           =========================== */
-        .reset-message {
-            padding: 0.8rem 1rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-            animation: fadeIn 0.4s ease;
-            font-weight: 500;
-        }
-
-        .reset-message.show {
-            display: flex;
-        }
-
-        .reset-message.success {
-            background: rgba(0, 230, 118, 0.08);
-            border: 1px solid rgba(0, 230, 118, 0.2);
-            color: var(--success);
-        }
-
-        .reset-message.error {
-            background: rgba(255, 82, 82, 0.08);
-            border: 1px solid rgba(255, 82, 82, 0.2);
-            color: var(--error);
-        }
-
-        .reset-message.info {
-            background: rgba(0, 234, 255, 0.06);
-            border: 1px solid rgba(0, 234, 255, 0.15);
-            color: var(--secondary);
-        }
-
-        .reset-message i {
-            font-size: 1.1rem;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===========================
-           STATUS DO TOKEN
-           =========================== */
-        .token-status {
-            text-align: center;
-            padding: 1rem;
-            border-radius: var(--radius-sm);
-            margin-bottom: 1rem;
-            display: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .token-status.show {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .token-status.error {
-            background: rgba(255, 82, 82, 0.08);
-            border: 1px solid rgba(255, 82, 82, 0.2);
-            color: var(--error);
-        }
-
-        .token-status.success {
-            background: rgba(0, 230, 118, 0.08);
-            border: 1px solid rgba(0, 230, 118, 0.2);
-            color: var(--success);
-        }
-
-        .token-status.info {
-            background: rgba(0, 234, 255, 0.06);
-            border: 1px solid rgba(0, 234, 255, 0.15);
-            color: var(--secondary);
-        }
-
-        .token-status i {
-            margin-right: 0.5rem;
-        }
-
-        /* ===========================
-           LINKS
-           =========================== */
-        .reset-links {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1.5rem;
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            flex-wrap: wrap;
-        }
-
-        .reset-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-weight: 500;
-            padding: 0.3rem 0.5rem;
-            border-radius: 6px;
-        }
-
-        .reset-links a:hover {
-            color: var(--primary);
-            background: rgba(198, 138, 255, 0.05);
-        }
-
-        .reset-links .back-to-login {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .reset-links .back-to-login:hover {
-            color: var(--primary-dark);
-            background: rgba(198, 138, 255, 0.1);
-        }
-
-        .reset-links .divider-dot {
-            color: var(--border);
-            font-size: 0.3rem;
-        }
-
-        /* ===========================
-           FOOTER
-           =========================== */
-        .reset-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .reset-footer p {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 300;
-        }
-
-        .reset-footer a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        .reset-footer a:hover {
-            color: var(--primary-dark);
-        }
-
-        /* ===========================
-           RESPONSIVIDADE
-           =========================== */
-
-        @media (max-width: 480px) {
-            body {
-                padding: 0.8rem;
-            }
-
-            .reset-container {
-                padding: 1.8rem 1.2rem;
-                border-radius: 16px;
-            }
-
-            .reset-header h1 {
-                font-size: 1.5rem;
-            }
-
-            .reset-header p {
-                font-size: 0.85rem;
-            }
-
-            .reset-icon {
-                width: 70px;
-                height: 70px;
-                font-size: 2rem;
-            }
-
-            .reset-links {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .reset-links .divider-dot {
-                display: none;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .reset-container {
-                padding: 1.2rem 0.8rem;
-            }
-
-            .reset-header h1 {
-                font-size: 1.3rem;
-            }
-
-            .reset-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.6rem;
-            }
-
-            .reset-btn {
-                font-size: 0.9rem;
-                padding: 0.8rem;
-            }
-        }
-
-        /* ===========================
-           TEMA LIGHT
-           =========================== */
-        html[data-theme="light"] {
-            --primary: #7C3AED;
-            --primary-dark: #6D28D9;
-            --secondary: #0891B2;
-            --background: #F8FAFC;
-            --surface: #FFFFFF;
-            --surface-light: #F1F5F9;
-            --surface-hover: #E2E8F0;
-            --text: #0F172A;
-            --text-secondary: #475569;
-            --text-muted: #94A3B8;
-            --border: #E2E8F0;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            --shadow-glow: 0 0 60px rgba(124, 58, 237, 0.05);
-            --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
-        }
-
-        html[data-theme="light"] .reset-container {
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        html[data-theme="light"] .reset-container::before {
-            opacity: 0.15;
-        }
-
-        html[data-theme="light"] .form-group .input-wrapper {
-            background: white;
-            border-color: #E2E8F0;
-        }
-
-        html[data-theme="light"] .form-group .input-wrapper:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
-        }
-
-        html[data-theme="light"] body::before {
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(8, 145, 178, 0.03) 0%, transparent 50%);
-        }
-
-        /* ===========================
-           SCROLLBAR
-           =========================== */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--surface);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
-        }
-
-        /* ===========================
-           REDUCED MOTION
-           =========================== */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* ===========================
-           ANIMAÇÕES ADICIONAIS
-           =========================== */
-        .shake {
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover">
+  <title>VRTIGO | Premium Clothing</title>
+  <meta name="description" content="VRTIGO - Camisetas oversized premium. Qualidade e estilo para o seu dia a dia.">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="imagens/favicone.png"/>
+  <style>
+    /* ============================================
+       TOGGLE SWITCH - AUTOFILL
+       ============================================ */
+    .autofill-control {
+      position: absolute;
+      top: 15px;
+      right: 60px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      padding: 6px 14px;
+      border-radius: 25px;
+      z-index: 10;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      border: 1px solid var(--border);
+      cursor: default;
+    }
+
+    .autofill-control .switch-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .autofill-control .icon {
+      font-size: 14px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #555;
+      transition: 0.3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .switch input:checked + .slider {
+      background: var(--primary);
+    }
+
+    .switch input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+
+    /* Responsividade do toggle */
+    @media (max-width: 768px) {
+      .autofill-control {
+        top: 10px;
+        right: 50px;
+        padding: 4px 12px;
+        font-size: 11px;
+      }
+
+      .switch {
+        width: 34px;
+        height: 18px;
+      }
+
+      .slider:before {
+        height: 12px;
+        width: 12px;
+        left: 3px;
+        bottom: 3px;
+      }
+
+      .switch input:checked + .slider:before {
+        transform: translateX(16px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .autofill-control {
+        top: 8px;
+        right: 44px;
+        padding: 3px 10px;
+        font-size: 10px;
+        gap: 6px;
+      }
+
+      .autofill-control .icon {
+        font-size: 12px;
+      }
+
+      .switch {
+        width: 30px;
+        height: 16px;
+      }
+
+      .slider:before {
+        height: 10px;
+        width: 10px;
+        left: 3px;
+        bottom: 3px;
+      }
+
+      .switch input:checked + .slider:before {
+        transform: translateX(14px);
+      }
+    }
+
+    /* ============================================
+       CORREÇÃO DO MODAL DE LOGIN
+       ============================================ */
+
+    /* Forçar o container do login a ter o layout correto */
+    #container {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      position: relative !important;
+      min-height: 580px !important;
+      background: var(--bg-primary) !important;
+      border-radius: 20px !important;
+      overflow: hidden !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .form-container {
+      position: absolute !important;
+      top: 0 !important;
+      height: 100% !important;
+      transition: all 0.6s ease-in-out !important;
+      padding: 40px 30px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: var(--bg-primary) !important;
+    }
+
+    .sign-in-container {
+      left: 0 !important;
+      width: 50% !important;
+      z-index: 2 !important;
+    }
+
+    #container.right-panel-active .sign-in-container {
+      transform: translateX(100%) !important;
+    }
+
+    .sign-up-container {
+      left: 0 !important;
+      width: 50% !important;
+      opacity: 0 !important;
+      z-index: 1 !important;
+    }
+
+    #container.right-panel-active .sign-up-container {
+      transform: translateX(100%) !important;
+      opacity: 1 !important;
+      z-index: 5 !important;
+    }
+
+    .overlay-container {
+      position: absolute !important;
+      top: 0 !important;
+      left: 50% !important;
+      width: 50% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      transition: transform 0.6s ease-in-out !important;
+      z-index: 100 !important;
+      display: block !important;
+      border-radius: 0 20px 20px 0 !important;
+    }
+
+    #container.right-panel-active .overlay-container {
+      transform: translateX(-100%) !important;
+    }
+
+    .overlay {
+      background: var(--gradient) !important;
+      background-repeat: no-repeat !important;
+      background-size: cover !important;
+      background-position: 0 0 !important;
+      color: #FFFFFF !important;
+      position: relative !important;
+      left: -100% !important;
+      height: 100% !important;
+      width: 200% !important;
+      transform: translateX(0) !important;
+      transition: transform 0.6s ease-in-out !important;
+    }
+
+    #container.right-panel-active .overlay {
+      transform: translateX(50%) !important;
+    }
+
+    .overlay-panel {
+      position: absolute !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-direction: column !important;
+      padding: 0 40px !important;
+      text-align: center !important;
+      top: 0 !important;
+      height: 100% !important;
+      width: 50% !important;
+      transform: translateX(0) !important;
+      transition: transform 0.6s ease-in-out !important;
+    }
+
+    .overlay-left {
+      transform: translateX(-20%) !important;
+    }
+
+    #container.right-panel-active .overlay-left {
+      transform: translateX(0) !important;
+    }
+
+    .overlay-right {
+      right: 0 !important;
+      transform: translateX(0) !important;
+    }
+
+    #container.right-panel-active .overlay-right {
+      transform: translateX(20%) !important;
+    }
+
+    .overlay-panel h2 {
+      color: white !important;
+      margin-bottom: 1rem !important;
+      font-size: 1.8rem !important;
+    }
+
+    .overlay-panel p {
+      font-size: 14px !important;
+      font-weight: 300 !important;
+      margin: 20px 0 30px !important;
+      color: rgba(255,255,255,0.9) !important;
+    }
+
+    #signupForm, #loginForm {
+      background: transparent !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-direction: column !important;
+      padding: 0 30px !important;
+      height: 100% !important;
+      text-align: center !important;
+      width: 100% !important;
+      max-width: 320px !important;
+    }
+
+    #signupForm h2, #loginForm h2 {
+      color: var(--text) !important;
+      margin-bottom: 20px !important;
+      font-size: 1.5rem !important;
+    }
+
+    #signupForm .form-group, #loginForm .form-group {
+      width: 100% !important;
+      margin: 8px 0 !important;
+    }
+
+    #signupForm input, #loginForm input {
+      background: var(--bg-secondary) !important;
+      border: 1px solid var(--border) !important;
+      padding: 12px 15px !important;
+      width: 100% !important;
+      border-radius: 8px !important;
+      color: var(--text) !important;
+      font-size: 16px !important;
+    }
+
+    #signupForm input:focus, #loginForm input:focus {
+      outline: none !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(198, 138, 255, 0.1) !important;
+    }
+
+    #signupForm .submit-btn, #loginForm .submit-btn {
+      margin-top: 10px !important;
+      width: 100% !important;
+      padding: 12px !important;
+    }
+
+    .login-modal-content {
+      max-width: 900px !important;
+      width: 90% !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+    }
+
+    @media (max-width: 768px) {
+      .sign-in-container,
+      .sign-up-container {
+        width: 100% !important;
+        position: relative !important;
+        transform: none !important;
+        opacity: 1 !important;
+        min-height: 400px !important;
+      }
+
+      #container {
+        flex-direction: column !important;
+        min-height: auto !important;
+        flex-wrap: wrap !important;
+      }
+
+      #container.right-panel-active .sign-in-container {
+        transform: none !important;
+      }
+
+      #container.right-panel-active .sign-up-container {
+        transform: none !important;
+      }
+
+      .overlay-container {
+        display: none !important;
+      }
+
+      .form-container {
+        position: relative !important;
+        padding: 30px 20px !important;
+      }
+
+      #signupForm, #loginForm {
+        padding: 0 20px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .form-container {
+        padding: 20px 16px !important;
+      }
+
+      #signupForm h2, #loginForm h2 {
+        font-size: 1.2rem !important;
+      }
+
+      #signupForm input, #loginForm input {
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+      }
+
+      .ghost {
+        padding: 8px 20px !important;
+        font-size: 12px !important;
+      }
+
+      .submit-btn {
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="reset-container" role="main" aria-labelledby="reset-title">
-        <!-- Header -->
-        <div class="reset-header">
-            <a href="#" class="reset-logo">
-                <i class="fas fa-cube"></i> Logo
-            </a>
-            <div class="reset-icon-wrapper">
-                <div class="reset-icon" id="resetIcon">
-                    <span class="pulse-ring"></span>
-                    <i class="fas fa-lock"></i>
-                </div>
-            </div>
-            <h1 id="reset-title">Redefinir Senha</h1>
-            <p id="reset-subtitle">Crie uma nova senha para sua conta</p>
+  <header class="hero-header">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <div class="logo">VRTIGO</div>
+        <div class="nav-controls">
+          <button class="nav-btn faq-btn" aria-label="FAQ">
+            <i class="fas fa-question"></i>
+          </button>
+          <button class="nav-btn cart-btn" aria-label="Carrinho">
+            <i class="fas fa-shopping-cart"></i>
+          </button>
+          <button class="nav-btn user-icon-btn" id="userIconBtn" aria-label="Usuário">
+            <i class="fas fa-user"></i>
+          </button>
+          <button class="nav-btn theme-toggle-btn" aria-label="Alternar tema">
+            <i class="fas fa-moon"></i>
+          </button>
         </div>
+      </div>
+    </nav>
 
-        <!-- Status do Token -->
-        <div id="tokenStatus" class="token-status">
-            <i class="fas fa-spinner fa-spin"></i>
-            <span id="tokenStatusText">Verificando token...</span>
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <h1 class="welcome-title">Welcome to VRTIGO</h1>
+        <p class="welcome-subtitle">Premium Clothing Experience</p>
+        <div class="welcome-actions">
+          <button class="cta-btn primary" onclick="scrollToSection('#loja')">Shop Now</button>
+          <button class="cta-btn secondary" onclick="scrollToSection('#sobre')">Explore</button>
         </div>
-
-        <!-- Mensagem de status -->
-        <div id="resetMessage" class="reset-message" role="alert" aria-live="polite">
-            <i class="fas fa-check-circle"></i>
-            <span id="messageText">Mensagem</span>
-        </div>
-
-        <!-- Formulário -->
-        <form id="resetForm" class="reset-form" novalidate>
-            <!-- Nova senha -->
-            <div class="form-group">
-                <label for="newPassword">
-                    <i class="fas fa-lock" style="margin-right: 6px;"></i> Nova senha
-                </label>
-                <div class="input-wrapper">
-                    <span class="input-icon" aria-hidden="true">
-                        <i class="fas fa-key"></i>
-                    </span>
-                    <input
-                        type="password"
-                        id="newPassword"
-                        name="password"
-                        placeholder="Digite sua nova senha"
-                        required
-                        autocomplete="new-password"
-                        minlength="6"
-                    />
-                    <button
-                        type="button"
-                        class="toggle-password"
-                        aria-label="Mostrar senha"
-                        tabindex="-1"
-                    >
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-                <!-- Força da senha -->
-                <div class="password-strength">
-                    <div class="bar" data-index="0"></div>
-                    <div class="bar" data-index="1"></div>
-                    <div class="bar" data-index="2"></div>
-                    <span class="label" id="strengthLabel">—</span>
-                </div>
-                <div class="password-hint">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Mínimo 6 caracteres com letras, números e símbolos</span>
-                </div>
-            </div>
-
-            <!-- Confirmar senha -->
-            <div class="form-group">
-                <label for="confirmPassword">
-                    <i class="fas fa-check-circle" style="margin-right: 6px;"></i> Confirmar senha
-                </label>
-                <div class="input-wrapper">
-                    <span class="input-icon" aria-hidden="true">
-                        <i class="fas fa-check-double"></i>
-                    </span>
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirm_password"
-                        placeholder="Confirme sua nova senha"
-                        required
-                        autocomplete="new-password"
-                    />
-                </div>
-            </div>
-
-            <!-- Botão principal -->
-            <button type="submit" id="resetBtn" class="reset-btn" disabled>
-                <span class="spinner" aria-hidden="true"></span>
-                <span class="btn-text" id="btnText">
-                    <i class="fas fa-sync-alt" style="margin-right: 8px;"></i> Redefinir senha
-                </span>
-            </button>
-
-            <!-- Links auxiliares -->
-            <div class="reset-links">
-                <a href="login.html" class="back-to-login">
-                    <i class="fas fa-arrow-left"></i> Voltar ao login
-                </a>
-                <span class="divider-dot">•</span>
-                <a href="#" id="resendLink" style="display: none;">
-                    <i class="fas fa-redo"></i> Solicitar novo link
-                </a>
-            </div>
-        </form>
-
-        <!-- Footer -->
-        <div class="reset-footer">
-            <p>
-                <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
-                Sua segurança é nossa prioridade
-            </p>
-        </div>
+      </div>
+      <div class="visual-element">
+        <div class="circle-animation"></div>
+      </div>
     </div>
+  </header>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===========================
-            // CONFIGURAÇÃO DO SUPABASE
-            // ===========================
-            const SUPABASE_URL = 'https://seu-projeto.supabase.co'; // 🔴 SUBSTITUA
-            const SUPABASE_ANON_KEY = 'sua-anon-key'; // 🔴 SUBSTITUA
+  <main class="main-content">
+    <section id="loja" class="content-section">
+      <div class="section-header">
+        <h2>Loja</h2>
+        <div class="section-controls">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="popular">Popular</button>
+          <button class="filter-btn" data-filter="new">New</button>
+        </div>
+      </div>
+      <div class="products-grid"></div>
+    </section>
 
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <section id="sobre" class="content-section">
+      <div class="section-header">
+        <h2>Sobre</h2>
+      </div>
+      <div class="about-content">
+        <div class="about-text">
+          <p>A ideia de fazer vendas começou em 2023 com Salomao Tsanwane Junior e Aminudin Muendane. Inicialmente, queríamos revender produtos já feitos, pois Amin já vendia com alguma frequência.</p>
+          <p>Um certo dia surgiu a ideia de criar nossa própria marca de camisetas, comprando camisetas de qualidade, colocando estampas bonitas e vendendo. O mercado de estampas estava crescendo, e queríamos crescer junto.</p>
+          <p>Em 2025, retomamos o projeto com objetivos claros e assim nasceu a VRTIGO.</p>
+        </div>
+        <div class="about-stats">
+          <div class="stat">
+            <span class="stat-number">2023</span>
+            <span class="stat-label">Início</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">3</span>
+            <span class="stat-label">Fundadores</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">10+</span>
+            <span class="stat-label">Produtos</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            // ===========================
-            // DOM ELEMENTS
-            // ===========================
-            const form = document.getElementById('resetForm');
-            const passwordInput = document.getElementById('newPassword');
-            const confirmInput = document.getElementById('confirmPassword');
-            const resetBtn = document.getElementById('resetBtn');
-            const btnText = document.getElementById('btnText');
-            const messageEl = document.getElementById('resetMessage');
-            const messageText = document.getElementById('messageText');
-            const tokenStatus = document.getElementById('tokenStatus');
-            const tokenStatusText = document.getElementById('tokenStatusText');
-            const resetIcon = document.getElementById('resetIcon');
-            const resendLink = document.getElementById('resendLink');
-            const subtitle = document.getElementById('reset-subtitle');
+    <section id="contato" class="content-section">
+      <div class="section-header">
+        <h2>Contato</h2>
+        <button class="cta-btn secondary faq-btn">
+          <i class="fas fa-question-circle"></i>
+          Ver FAQ
+        </button>
+      </div>
+      <div class="contact-content">
+        <form id="contactForm" class="contact-form">
+          <div class="form-group">
+            <input type="text" name="nome" placeholder="Nome" required minlength="2">
+          </div>
+          <div class="form-group">
+            <input type="email" name="email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="text" name="assunto" placeholder="Assunto" required minlength="3">
+          </div>
+          <div class="form-group">
+            <textarea name="mensagem" placeholder="Mensagem" required minlength="10" rows="5"></textarea>
+          </div>
+          <button type="submit" class="submit-btn">Enviar Mensagem</button>
+        </form>
+        <div class="contact-info">
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>Salomaojun005@gmail.com</span>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <span>+91 7416186948</span>
+          </div>
+          <div class="contact-item">
+            <i class="fab fa-whatsapp"></i>
+            <span><a href="https://wa.me/917416186948?text=👋%20Olá!%20Meu%20nome%20é%20_____%0A%0A📝%20Apresente%20a%20sua%20preocupação%20e%20lhe%20responderemos%20em%20breve!%20😊" target="_blank" style="color: var(--text); text-decoration: none;">WhatsApp: +91 7416186948</a></span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            // ===========================
-            // ESTADOS
-            // ===========================
-            let isTokenValid = false;
-            let userEmail = '';
+    <section id="saves" class="content-section">
+      <div class="section-header">
+        <h2>Favoritos</h2>
+        <span class="saves-count">0 itens</span>
+      </div>
+      <div class="saves-grid" id="saves-grid"></div>
+      <div id="no-saves" class="no-saves">
+        <i class="far fa-heart"></i>
+        <h3>Nenhum favorito ainda</h3>
+        <p>Salve seus produtos favoritos clicando no coração</p>
+        <button class="cta-btn primary" onclick="scrollToSection('#loja')">Explorar Loja</button>
+      </div>
+    </section>
+  </main>
 
-            // ===========================
-            // TOGGLE PASSWORD
-            // ===========================
-            document.querySelectorAll('.toggle-password').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const input = this.closest('.input-wrapper').querySelector('input');
-                    if (!input) return;
-                    const isPassword = input.type === 'password';
-                    input.type = isPassword ? 'text' : 'password';
-                    const icon = this.querySelector('i');
-                    icon.classList.toggle('fa-eye');
-                    icon.classList.toggle('fa-eye-slash');
-                });
-            });
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="#loja" class="nav-item active" data-nav="loja">
+      <i class="fas fa-store"></i>
+      <span>Loja</span>
+    </a>
+    <a href="#sobre" class="nav-item" data-nav="sobre">
+      <i class="fas fa-info-circle"></i>
+      <span>Sobre</span>
+    </a>
+    <a href="#contato" class="nav-item" data-nav="contato">
+      <i class="fas fa-envelope"></i>
+      <span>Contato</span>
+    </a>
+    <a href="#saves" class="nav-item" data-nav="saves">
+      <i class="fas fa-heart"></i>
+      <span>Favoritos</span>
+    </a>
+  </nav>
 
-            // ===========================
-            // MENSAGENS
-            // ===========================
-            function showMessage(text, type = 'info') {
-                messageEl.className = 'reset-message show ' + type;
-                messageText.textContent = text;
-                clearTimeout(messageEl._timeout);
-                messageEl._timeout = setTimeout(() => {
-                    messageEl.classList.remove('show');
-                }, 6000);
-            }
+  <!-- Modal Produto -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <button class="modal-save-btn"><i class="far fa-heart"></i></button>
+      <button class="modal-close">&times;</button>
+      <div class="modal-body" id="productModalBody"></div>
+    </div>
+  </div>
 
-            function showTokenStatus(text, type = 'info') {
-                tokenStatus.className = 'token-status show ' + type;
-                tokenStatusText.innerHTML = text;
-            }
+  <!-- Modal FAQ -->
+  <div class="modal" id="faqModal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div class="modal-body">
+        <div class="faq-content">
+          <div class="faq-placeholder">
+            <i class="fas fa-question-circle"></i>
+            <h3>FAQs em construção!</h3>
+            <p>Nossa equipe está preparando as perguntas mais frequentes para você.</p>
+            <p>Enquanto isso, entre em contato pelo formulário na seção contatos! 👇</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            function updateIcon(type) {
-                resetIcon.className = 'reset-icon ' + type;
-                const icon = resetIcon.querySelector('i');
-                if (type === 'success') {
-                    icon.className = 'fas fa-check-circle';
-                } else if (type === 'error') {
-                    icon.className = 'fas fa-times-circle';
-                } else {
-                    icon.className = 'fas fa-lock';
-                }
-            }
+  <!-- Modal de Confirmação de Contato -->
+  <div class="modal" id="contactModal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div class="modal-body">
+        <div style="text-align: center; padding: 2rem;">
+          <i class="fas fa-check-circle" style="font-size: 4rem; color: #C68AFF; margin-bottom: 1rem;"></i>
+          <h3 style="margin-bottom: 1rem; color: var(--text);">Mensagem Enviada!</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 2rem;">Entraremos em contato em breve.</p>
+          <button class="cta-btn primary close-modal-btn" style="margin-top: 1rem;">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            // ===========================
-            // EXTRAIR TOKEN DA URL
-            // ===========================
-            function extractTokensFromURL() {
-                const hashParams = new URLSearchParams(window.location.hash.substring(1));
-                const access_token = hashParams.get('access_token');
-                const refresh_token = hashParams.get('refresh_token');
-                const queryParams = new URLSearchParams(window.location.search);
-                const token = queryParams.get('token') || queryParams.get('code');
-                return { access_token, refresh_token, token };
-            }
+  <!-- DROPDOWN DO USUÁRIO -->
+  <div class="user-dropdown" id="userDropdownMenu">
+    <div class="user-dropdown-content">
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span id="dropdownUserName">Visitante</span>
+      </div>
+      <div class="dropdown-divider"></div>
+      <a href="#" id="dropdownFavoritos" class="dropdown-item">
+        <i class="fas fa-heart"></i> Meus Favoritos
+      </a>
+      <a href="#" id="dropdownSair" class="dropdown-item">
+        <i class="fas fa-sign-out-alt"></i> Sair
+      </a>
+    </div>
+  </div>
 
-            // ===========================
-            // VERIFICAR TOKEN
-            // ===========================
-            async function verifyToken() {
-                try {
-                    const { access_token, refresh_token, token } = extractTokensFromURL();
-                    
-                    // Caso 1: Token via hash
-                    if (access_token) {
-                        const { data, error } = await supabase.auth.setSession({
-                            access_token,
-                            refresh_token: refresh_token || ''
-                        });
-                        
-                        if (error) throw error;
-                        if (data.user) {
-                            userEmail = data.user.email || '';
-                            isTokenValid = true;
-                            resetBtn.disabled = false;
-                            showTokenStatus('✅ Token válido! Crie sua nova senha.', 'success');
-                            updateIcon('success');
-                            subtitle.textContent = `Redefinindo senha para ${userEmail}`;
-                            return true;
-                        }
-                    }
+  <!-- ============================================ -->
+  <!-- MODAL DE LOGIN COM CONTROLE DE AUTOFILL      -->
+  <!-- ============================================ -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content login-modal-content">
+      <button class="modal-close close-modal-btn">&times;</button>
+      
+      <!-- CONTROLE DE AUTOFILL -->
+      <div class="autofill-control" id="autofillControl">
+        <span class="switch-label">
+          <span class="icon">🔒</span>
+          <span>Autofill</span>
+        </span>
+        <label class="switch">
+          <input type="checkbox" id="autofillToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
 
-                    // Caso 2: Token via query string
-                    if (token) {
-                        const { data, error } = await supabase.auth.exchangeCodeForSession(token);
-                        if (error) throw error;
-                        if (data.user) {
-                            userEmail = data.user.email || '';
-                            isTokenValid = true;
-                            resetBtn.disabled = false;
-                            showTokenStatus('✅ Token válido! Crie sua nova senha.', 'success');
-                            updateIcon('success');
-                            subtitle.textContent = `Redefinindo senha para ${userEmail}`;
-                            return true;
-                        }
-                    }
+      <div class="modal-body" style="padding: 0; overflow: hidden;">
+        <div class="form-container" id="container">
+          <div class="form-container sign-up-container">
+            <form id="signupForm">
+              <h2>Criar Conta</h2>
+              <div class="form-group">
+                <input type="text" id="signupName" placeholder="Nome completo" required>
+              </div>
+              <div class="form-group">
+                <input type="email" id="signupEmail" placeholder="Email" required>
+              </div>
+              <div class="form-group">
+                <input type="password" id="signupPassword" placeholder="Senha (mínimo 6 caracteres)" required>
+              </div>
+              <div class="form-group">
+                <input type="password" id="signupConfirmPassword" placeholder="Confirmar senha" required>
+              </div>
+              <button type="submit" class="submit-btn">Cadastrar</button>
+            </form>
+          </div>
+          <div class="form-container sign-in-container">
+            <form id="loginForm">
+              <h2>Entrar</h2>
+              <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+              </div>
+              <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Senha" required>
+              </div>
+              <a href="#" id="forgotPasswordLink" style="color: var(--primary); text-decoration: none; font-size: 14px; margin: 10px 0; display: inline-block;">Esqueceu a senha?</a>
+              <button type="submit" class="submit-btn">Entrar</button>
+            </form>
+          </div>
+          <div class="overlay-container">
+            <div class="overlay">
+              <div class="overlay-panel overlay-left">
+                <h2>Bem-vindo de volta!</h2>
+                <p>Já tem uma conta? Faça login para continuar</p>
+                <button class="ghost" id="signIn">Entrar</button>
+              </div>
+              <div class="overlay-panel overlay-right">
+                <h2>Olá, amigo!</h2>
+                <p>Não tem uma conta? Cadastre-se aqui</p>
+                <button class="ghost" id="signUp">Cadastrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="login-message" style="display: none; margin: 1rem; padding: 0.5rem; border-radius: 8px; text-align: center;"></div>
+      </div>
+    </div>
+  </div>
 
-                    // Caso 3: Sessão existente
-                    const { data: sessionData } = await supabase.auth.getSession();
-                    if (sessionData?.session) {
-                        userEmail = sessionData.session.user.email || '';
-                        isTokenValid = true;
-                        resetBtn.disabled = false;
-                        showTokenStatus('✅ Sessão válida! Crie sua nova senha.', 'success');
-                        updateIcon('success');
-                        subtitle.textContent = `Redefinindo senha para ${userEmail}`;
-                        return true;
-                    }
+  <!-- MODAL DE RECUPERAÇÃO DE SENHA -->
+  <div class="modal" id="forgotPasswordModal">
+    <div class="modal-content">
+      <button class="modal-close close-modal-btn">&times;</button>
+      <div class="modal-body">
+        <div style="text-align: center;">
+          <i class="fas fa-key" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+          <h3 style="margin-bottom: 1rem;">Recuperar Senha</h3>
+          <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+            Digite seu email e enviaremos um link para redefinir sua senha.
+          </p>
+          <div id="reset-message" style="display: none;"></div>
+          <div class="form-group">
+            <input type="email" id="reset-email" placeholder="Seu email" required>
+          </div>
+          <button id="send-reset-code" class="submit-btn" style="width: 100%;">Enviar Link de Recuperação</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                    throw new Error('Link inválido ou expirado');
+  <!-- ============================================ -->
+  <!-- SCRIPTS                                      -->
+  <!-- ============================================ -->
+  <script>
+    function scrollToSection(sectionId) {
+      const section = document.querySelector(sectionId);
+      if (section) {
+        const offset = 80;
+        const elementPosition = section.offsetTop - offset;
+        window.scrollTo({ top: elementPosition, behavior: 'smooth' });
+      }
+    }
+  </script>
 
-                } catch (error) {
-                    console.error('❌ Erro ao verificar token:', error);
-                    isTokenValid = false;
-                    resetBtn.disabled = true;
-                    updateIcon('error');
-                    showTokenStatus('❌ ' + (error.message || 'Link inválido ou expirado'), 'error');
-                    subtitle.textContent = 'Link inválido ou expirado';
-                    resendLink.style.display = 'inline-flex';
-                    return false;
-                }
-            }
-
-            // ===========================
-            // REDEFINIR SENHA
-            // ===========================
-            async function updatePassword(newPassword) {
-                const { data, error } = await supabase.auth.updateUser({
-                    password: newPassword
-                });
-                if (error) throw error;
-                return data;
-            }
-
-            // ===========================
-            // SUBMIT
-            // ===========================
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                hideMessage();
-
-                if (!isTokenValid) {
-                    showMessage('Token inválido. Solicite um novo link.', 'error');
-                    return;
-                }
-
-                if (resetBtn.classList.contains('loading')) return;
-
-                const password = passwordInput.value;
-                const confirm = confirmInput.value;
-
-                if (password.length < 6) {
-                    showMessage('A senha deve ter no mínimo 6 caracteres.', 'error');
-                    passwordInput.focus();
-                    passwordInput.parentElement.parentElement.classList.add('shake');
-                    setTimeout(() => passwordInput.parentElement.parentElement.classList.remove('shake'), 500);
-                    return;
-                }
-
-                if (password !== confirm) {
-                    showMessage('As senhas não coincidem.', 'error');
-                    confirmInput.focus();
-                    confirmInput.parentElement.parentElement.classList.add('shake');
-                    setTimeout(() => confirmInput.parentElement.parentElement.classList.remove('shake'), 500);
-                    return;
-                }
-
-                resetBtn.classList.add('loading');
-                resetBtn.disabled = true;
-
-                try {
-                    await updatePassword(password);
-                    showMessage('✅ Senha redefinida com sucesso!', 'success');
-                    updateIcon('success');
-                    subtitle.textContent = 'Senha alterada com sucesso! 🎉';
-                    passwordInput.disabled = true;
-                    confirmInput.disabled = true;
-
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2500);
-
-                } catch (error) {
-                    showMessage('❌ ' + (error.message || 'Erro ao redefinir senha'), 'error');
-                    resetBtn.classList.remove('loading');
-                    resetBtn.disabled = false;
-                }
-            });
-
-            // ===========================
-            // FORÇA DA SENHA
-            // ===========================
-            passwordInput.addEventListener('input', function() {
-                const password = this.value;
-                const bars = document.querySelectorAll('.password-strength .bar');
-                const label = document.getElementById('strengthLabel');
-
-                bars.forEach(bar => bar.className = 'bar');
-
-                if (password.length === 0) {
-                    label.textContent = '—';
-                    label.style.color = 'var(--text-muted)';
-                    return;
-                }
-
-                const hasLower = /[a-z]/.test(password);
-                const hasUpper = /[A-Z]/.test(password);
-                const hasNumber = /[0-9]/.test(password);
-                const hasSpecial = /[^a-zA-Z0-9]/.test(password);
-                const length = password.length;
-
-                let score = 0;
-                if (length >= 6) score++;
-                if (length >= 10) score++;
-                if (hasLower && hasUpper) score++;
-                if (hasNumber) score++;
-                if (hasSpecial) score++;
-
-                let strength = 'weak';
-                let labelText = 'Fraca';
-
-                if (score >= 4 && length >= 8) {
-                    strength = 'strong';
-                    labelText = 'Forte';
-                } else if (score >= 2 && length >= 6) {
-                    strength = 'medium';
-                    labelText = 'Média';
-                }
-
-                const activeBars = strength === 'weak' ? 1 : strength === 'medium' ? 2 : 3;
-                bars.forEach((bar, index) => {
-                    if (index < activeBars) {
-                        bar.className = 'bar active ' + strength;
-                    }
-                });
-
-                label.textContent = labelText;
-                label.style.color = strength === 'strong' ? 'var(--success)' :
-                                   strength === 'medium' ? 'var(--warning)' : 'var(--error)';
-            });
-
-            // ===========================
-            // REENVIAR LINK
-            // ===========================
-            resendLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.location.href = 'recuperar-senha.html';
-            });
-
-            // ===========================
-            // INICIALIZAÇÃO
-            // ===========================
-            async function init() {
-                await verifyToken();
-                if (isTokenValid) {
-                    setTimeout(() => passwordInput.focus(), 400);
-                }
-            }
-
-            // Detectar tema
-            if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-
-            init();
-        });
-    </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
 </body>
 </html>

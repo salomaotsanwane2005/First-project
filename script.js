@@ -1,12 +1,11 @@
 // ============================================================
-// VRTIGO - SCRIPT COMPLETO COM SUPABASE (VERSÃO CORRIGIDA)
+// VRTIGO - SCRIPT COMPLETO COM SUPABASE (OTP - SEM SENHA)
 // ============================================================
 
 // ============================================================
 // CONFIGURAÇÃO DO SUPABASE
 // ============================================================
 const SUPABASE_URL = "https://zdrplxumrqxlqpmorxbd.supabase.co";
-// ⚠️ SUBSTITUA PELA SUA ANON KEY CORRETA (começa com eyJ...)
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkcnBseHVtcnF4bHFwbW9yeGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTM0ODIsImV4cCI6MjA5MTIyOTQ4Mn0.cNyw0YHWKhiMunyJKIr9mbp61E31eXCn2XWBO_V9w4o";
 
 let supabaseClient = null;
@@ -148,7 +147,6 @@ async function migrateLocalFavoritesToAPI(userId) {
 
 async function tentarCarregarDoSupabase() {
   try {
-    // Aguarda o SDK do Supabase estar disponível
     if (!window.supabase?.createClient) {
       console.warn("⚠️ SDK Supabase não disponível ainda");
       return null;
@@ -171,7 +169,6 @@ async function tentarCarregarDoSupabase() {
     if (error) throw error;
 
     if (data && data.length > 0) {
-      // Verificar os nomes reais das colunas no primeiro item
       console.log("📦 Estrutura do produto do Supabase:", Object.keys(data[0]));
       
       return data.map(p => ({
@@ -179,8 +176,8 @@ async function tentarCarregarDoSupabase() {
         name: p.name,
         price: p.price,
         img: p.img,
-        desc: p.descricao || p.desc || "Descrição não disponível", // fallback
-        shortDesc: p.shortdesc || p.shortDesc || p.short_desc || "Produto VRTIGO", // fallback
+        desc: p.descricao || p.desc || "Descrição não disponível",
+        shortDesc: p.shortdesc || p.shortDesc || p.short_desc || "Produto VRTIGO",
         category: p.category,
         placeholder: getPlaceholderImage(p.name, p.category)
       }));
@@ -723,7 +720,6 @@ function initUIInteractions() {
   });
   document.querySelector('#no-saves .cta-btn.primary')?.addEventListener('click', () => scrollToSection('#loja'));
   
-  // CORRIGIDO: Seleciona apenas o botão do header, não o da bottom nav
   const cartBtn = document.querySelector('.navbar .cart-btn');
   if (cartBtn) {
     cartBtn.addEventListener('click', () => {
@@ -785,8 +781,9 @@ function initThemeToggle() {
 }
 
 // ============================================================
-// SISTEMA DE LOGIN SIMPLIFICADO
+// SISTEMA DE LOGIN OTP (SEM SENHA)
 // ============================================================
+
 function setupSupabase() {
   if (supabaseInitialized) return true;
   
@@ -805,6 +802,153 @@ function setupSupabase() {
   return false;
 }
 
+// ============================================================
+// FUNÇÕES OTP - CADASTRO E LOGIN
+// ============================================================
+
+// Função para mostrar/esconder campos OTP
+function toggleOtpFields(formType, show) {
+  const container = document.getElementById(formType === 'signup' ? 'signupOtpContainer' : 'loginOtpContainer');
+  const submitBtn = document.getElementById(formType === 'signup' ? 'signupSubmitBtn' : 'loginSubmitBtn');
+  const emailField = document.getElementById(formType === 'signup' ? 'signupEmail' : 'loginEmail');
+  
+  if (container) {
+    container.classList.toggle('show', show);
+  }
+  
+  if (submitBtn) {
+    submitBtn.textContent = show ? 'Verificar código' : 'Enviar código';
+  }
+  
+  if (emailField) {
+    emailField.disabled = show;
+  }
+}
+
+// Função para enviar OTP (login ou cadastro)
+async function sendOtp(email, formType) {
+  const msgDiv = document.getElementById('login-message');
+  
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showMessage('❌ Insira um email válido', 'error', msgDiv);
+    return false;
+  }
+  
+  showMessage('⏳ Enviando código...', 'info', msgDiv);
+  
+  try {
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      email: email,
+      options: {
+        shouldCreateUser: true
+      }
+    });
+    
+    if (error) throw error;
+    
+    showMessage('✅ Código enviado! Verifique seu email.', 'success', msgDiv);
+    toggleOtpFields(formType, true);
+    return true;
+    
+  } catch (error) {
+    console.error('Erro ao enviar OTP:', error);
+    showMessage('❌ ' + (error.message || 'Erro ao enviar código. Tente novamente.'), 'error', msgDiv);
+    return false;
+  }
+}
+
+// Função para verificar OTP (login ou cadastro)
+async function verifyOtp(email, token, formType) {
+  const msgDiv = document.getElementById('login-message');
+  
+  if (!token || token.length < 6) {
+    showMessage('❌ Digite o código de 6 dígitos', 'error', msgDiv);
+    return false;
+  }
+  
+  showMessage('⏳ Verificando código...', 'info', msgDiv);
+  
+  try {
+    const { data, error } = await supabaseClient.auth.verifyOtp({
+      email: email,
+      token: token,
+      type: 'email'
+    });
+    
+    if (error) throw error;
+    
+    // Login bem-sucedido
+    currentUser = {
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.user_metadata?.nome || email.split('@')[0]
+    };
+    
+    localStorage.setItem('vrtigoCurrentUser', JSON.stringify(currentUser));
+    updateUserIconVisual(true);
+    updateDropdownUserInfo();
+    
+    // Se for cadastro, salvar dados adicionais
+    if (formType === 'signup') {
+      await saveUserProfile(data.user.id);
+    }
+    
+    await migrateLocalFavoritesToAPI(currentUser.id);
+    
+    showMessage('✅ Login realizado com sucesso!', 'success', msgDiv);
+    updateUserInterface();
+    await loadUserFavorites();
+    updateAllSaveButtons();
+    
+    setTimeout(() => {
+      closeLoginModal();
+    }, 1500);
+    
+    return true;
+    
+  } catch (error) {
+    console.error('Erro ao verificar OTP:', error);
+    showMessage('❌ ' + (error.message || 'Código inválido ou expirado. Tente novamente.'), 'error', msgDiv);
+    return false;
+  }
+}
+
+// Função para salvar perfil do usuário (cadastro)
+async function saveUserProfile(userId) {
+  try {
+    const name = document.getElementById('signupName')?.value.trim() || '';
+    const phone = document.getElementById('signupPhone')?.value.trim() || '';
+    const birth = document.getElementById('signupBirth')?.value || '';
+    const gender = document.getElementById('signupGender')?.value || '';
+    const location = document.getElementById('signupLocation')?.value.trim() || '';
+    
+    const { error } = await supabaseClient
+      .from('profiles')
+      .upsert({
+        id: userId,
+        nome: name,
+        telefone: phone,
+        data_nascimento: birth,
+        sexo: gender,
+        localizacao: location,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+    
+    if (error) {
+      console.error('Erro ao salvar perfil:', error);
+    } else {
+      console.log('✅ Perfil salvo com sucesso');
+    }
+  } catch (error) {
+    console.error('Erro ao salvar perfil:', error);
+  }
+}
+
+// ============================================================
+// HANDLERS DO FORMULÁRIO OTP
+// ============================================================
+
+// Handler do formulário de cadastro
 async function handleSignUp(event) {
   event.preventDefault();
   
@@ -814,31 +958,57 @@ async function handleSignUp(event) {
   }
   
   const msgDiv = document.getElementById('login-message');
-  const name = document.getElementById('signupName')?.value.trim() || '';
   const email = document.getElementById('signupEmail')?.value.trim() || '';
-  const password = document.getElementById('signupPassword')?.value || '';
-  const confirmPassword = document.getElementById('signupConfirmPassword')?.value || '';
+  const name = document.getElementById('signupName')?.value.trim() || '';
+  const phone = document.getElementById('signupPhone')?.value.trim() || '';
+  const birth = document.getElementById('signupBirth')?.value || '';
+  const gender = document.getElementById('signupGender')?.value || '';
+  const location = document.getElementById('signupLocation')?.value.trim() || '';
+  const otpContainer = document.getElementById('signupOtpContainer');
+  const otpInput = document.getElementById('signupOtp');
   
-  if (!name) return showMessage('❌ Insira seu nome', 'error', msgDiv);
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showMessage('❌ Email inválido', 'error', msgDiv);
-  if (!password || password.length < 6) return showMessage('❌ Senha deve ter mínimo 6 caracteres', 'error', msgDiv);
-  if (password !== confirmPassword) return showMessage('❌ Senhas não coincidem', 'error', msgDiv);
-  
-  showMessage('⏳ Cadastrando...', 'info', msgDiv);
-  const { data, error } = await supabaseClient.auth.signUp({
-    email, password,
-    options: { data: { nome: name } }
-  });
-  
-  if (error) { 
-    showMessage('❌ ' + (error.message.includes("already registered") ? 'Email já cadastrado!' : error.message), 'error', msgDiv); 
-  } else { 
-    showMessage('✅ Cadastro realizado! Verifique seu email e faça login.', 'success', msgDiv); 
-    document.getElementById('signupForm')?.reset(); 
-    setTimeout(() => toggleOverlayToLogin(), 2000);
+  // Verifica se o OTP está visível (segundo passo)
+  if (otpContainer && otpContainer.classList.contains('show')) {
+    const token = otpInput?.value.trim() || '';
+    await verifyOtp(email, token, 'signup');
+    return;
   }
+  
+  // Primeiro passo: validar dados do cadastro
+  if (!name) {
+    showMessage('❌ Insira seu nome completo', 'error', msgDiv);
+    return;
+  }
+  
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showMessage('❌ Insira um email válido', 'error', msgDiv);
+    return;
+  }
+  
+  if (!birth) {
+    showMessage('❌ Insira sua data de nascimento', 'error', msgDiv);
+    return;
+  }
+  
+  if (!gender) {
+    showMessage('❌ Selecione seu sexo', 'error', msgDiv);
+    return;
+  }
+  
+  if (!location) {
+    showMessage('❌ Insira sua cidade e estado', 'error', msgDiv);
+    return;
+  }
+  
+  // Salvar dados temporários no localStorage para uso posterior
+  const tempData = { name, phone, birth, gender, location };
+  localStorage.setItem('vrtigoTempSignup', JSON.stringify(tempData));
+  
+  // Enviar OTP
+  await sendOtp(email, 'signup');
 }
 
+// Handler do formulário de login
 async function handleSignIn(event) {
   event.preventDefault();
   
@@ -849,87 +1019,23 @@ async function handleSignIn(event) {
   
   const msgDiv = document.getElementById('login-message');
   const email = document.getElementById('loginEmail')?.value.trim() || '';
-  const password = document.getElementById('loginPassword')?.value || '';
+  const otpContainer = document.getElementById('loginOtpContainer');
+  const otpInput = document.getElementById('loginOtp');
   
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showMessage('❌ Email inválido', 'error', msgDiv);
-  if (!password) return showMessage('❌ Insira sua senha', 'error', msgDiv);
-  
-  showMessage('⏳ Entrando...', 'info', msgDiv);
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  
-  if (error) { 
-    showMessage('❌ Email ou senha incorretos', 'error', msgDiv); 
-  } else {
-    currentUser = { 
-      id: data.user.id, 
-      email: data.user.email, 
-      name: data.user.user_metadata?.nome || email.split('@')[0] 
-    };
-    localStorage.setItem('vrtigoCurrentUser', JSON.stringify(currentUser));
-    
-    updateUserIconVisual(true);
-    updateDropdownUserInfo();
-    await migrateLocalFavoritesToAPI(currentUser.id);
-    
-    showMessage('✅ Login realizado!', 'success', msgDiv);
-    updateUserInterface();
-    await loadUserFavorites();
-    updateAllSaveButtons();
-    setTimeout(() => closeLoginModal(), 1500);
-  }
-}
-
-async function handleForgotPassword(event) {
-  event.preventDefault();
-  
-  const email = document.getElementById('reset-email')?.value.trim() || '';
-  const msgDiv = document.getElementById('reset-message');
-  
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showMessage('❌ Insira um email válido', 'error', msgDiv);
+  // Verifica se o OTP está visível (segundo passo)
+  if (otpContainer && otpContainer.classList.contains('show')) {
+    const token = otpInput?.value.trim() || '';
+    await verifyOtp(email, token, 'login');
     return;
   }
   
-  showMessage('⏳ Enviando instruções...', 'info', msgDiv);
-  
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + '/reset-password.html'
-  });
-  
-  if (error) {
-    console.error('Erro ao recuperar senha:', error);
-    showMessage('❌ Email não encontrado. Verifique e tente novamente.', 'error', msgDiv);
-  } else {
-    showMessage('✅ Enviamos um link de recuperação para seu email!', 'success', msgDiv);
-    
-    setTimeout(() => {
-      closeForgotPasswordModal();
-      document.getElementById('reset-email').value = '';
-    }, 3000);
-  }
+  // Primeiro passo: enviar OTP
+  await sendOtp(email, 'login');
 }
 
-function openForgotPasswordModal() {
-  closeLoginModal();
-  const modal = document.getElementById('forgotPasswordModal');
-  if (modal) {
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    
-    const emailInput = document.getElementById('reset-email');
-    const msgDiv = document.getElementById('reset-message');
-    if (emailInput) emailInput.value = '';
-    if (msgDiv) msgDiv.style.display = 'none';
-  }
-}
-
-function closeForgotPasswordModal() {
-  const modal = document.getElementById('forgotPasswordModal');
-  if (modal) { 
-    modal.classList.remove('open'); 
-    document.body.style.overflow = 'auto';
-  }
-}
+// ============================================================
+// FUNÇÕES DE MODAL E OVERLAY
+// ============================================================
 
 function openLoginModal() {
   const modal = document.getElementById('loginModal');
@@ -939,12 +1045,49 @@ function openLoginModal() {
     toggleOverlayToLogin();
     const msgDiv = document.getElementById('login-message');
     if (msgDiv) msgDiv.style.display = 'none';
+    // Resetar campos OTP
+    resetOtpFields();
   }
 }
 
 function closeLoginModal() {
   const modal = document.getElementById('loginModal');
-  if (modal) { modal.classList.remove('open'); document.body.style.overflow = 'auto'; }
+  if (modal) { 
+    modal.classList.remove('open'); 
+    document.body.style.overflow = 'auto';
+    resetOtpFields();
+  }
+}
+
+function resetOtpFields() {
+  ['signupOtpContainer', 'loginOtpContainer'].forEach(id => {
+    const container = document.getElementById(id);
+    if (container) container.classList.remove('show');
+  });
+  ['signupOtp', 'loginOtp'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+  });
+  ['signupEmail', 'loginEmail'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.disabled = false;
+  });
+  ['signupSubmitBtn', 'loginSubmitBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.textContent = btn.id.includes('signup') ? 'Enviar código' : 'Enviar código';
+  });
+}
+
+function toggleOverlayToSignUp() {
+  const container = document.getElementById('container');
+  if (container) container.classList.add('right-panel-active');
+  resetOtpFields();
+}
+
+function toggleOverlayToLogin() {
+  const container = document.getElementById('container');
+  if (container) container.classList.remove('right-panel-active');
+  resetOtpFields();
 }
 
 // ============================================================
@@ -988,6 +1131,7 @@ async function handleDropdownLogout() {
   }
   
   localStorage.removeItem('vrtigoCurrentUser');
+  localStorage.removeItem('vrtigoTempSignup');
   currentUser = null;
   savedProducts = [];
   updateSavesCount();
@@ -996,6 +1140,112 @@ async function handleDropdownLogout() {
   updateUserInterface();
   updateUserIconVisual(false);
 }
+
+function updateUserInterface() {
+  const saved = localStorage.getItem('vrtigoCurrentUser');
+  currentUser = saved ? JSON.parse(saved) : null;
+  if (currentUser) {
+    updateUserIconVisual(true);
+    updateDropdownUserInfo();
+  } else {
+    updateUserIconVisual(false);
+  }
+}
+
+// ============================================================
+// INICIALIZAÇÃO DO SISTEMA DE LOGIN
+// ============================================================
+
+function initLoginSystem() {
+  console.log("🔧 Inicializando sistema de login OTP...");
+  
+  setupSupabase();
+  
+  // Botões do overlay
+  const signUpBtn = document.getElementById('signUp');
+  const signInBtn = document.getElementById('signIn');
+  
+  if (signUpBtn) {
+    const newSignUpBtn = signUpBtn.cloneNode(true);
+    signUpBtn.parentNode.replaceChild(newSignUpBtn, signUpBtn);
+    newSignUpBtn.addEventListener('click', toggleOverlayToSignUp);
+  }
+  
+  if (signInBtn) {
+    const newSignInBtn = signInBtn.cloneNode(true);
+    signInBtn.parentNode.replaceChild(newSignInBtn, signInBtn);
+    newSignInBtn.addEventListener('click', toggleOverlayToLogin);
+  }
+  
+  // Formulários
+  const signupForm = document.getElementById('signupForm');
+  const loginForm = document.getElementById('loginForm');
+  
+  if (signupForm) {
+    const newSignupForm = signupForm.cloneNode(true);
+    signupForm.parentNode.replaceChild(newSignupForm, signupForm);
+    newSignupForm.addEventListener('submit', handleSignUp);
+  }
+  
+  if (loginForm) {
+    const newLoginForm = loginForm.cloneNode(true);
+    loginForm.parentNode.replaceChild(newLoginForm, loginForm);
+    newLoginForm.addEventListener('submit', handleSignIn);
+  }
+  
+  // Fechar modal
+  const loginModalElem = document.getElementById('loginModal');
+  if (loginModalElem) {
+    const closeBtn = loginModalElem.querySelector('.modal-close');
+    if (closeBtn) {
+      const newCloseBtn = closeBtn.cloneNode(true);
+      closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+      newCloseBtn.addEventListener('click', closeLoginModal);
+    }
+    
+    loginModalElem.addEventListener('click', (e) => { 
+      if(e.target === loginModalElem) closeLoginModal(); 
+    });
+  }
+  
+  // Reenvio de OTP
+  document.getElementById('signupResendOtp')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('signupEmail')?.value.trim() || '';
+    if (email) {
+      await sendOtp(email, 'signup');
+    } else {
+      showMessage('❌ Email não encontrado. Tente novamente.', 'error', document.getElementById('login-message'));
+    }
+  });
+  
+  document.getElementById('loginResendOtp')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail')?.value.trim() || '';
+    if (email) {
+      await sendOtp(email, 'login');
+    } else {
+      showMessage('❌ Email não encontrado. Tente novamente.', 'error', document.getElementById('login-message'));
+    }
+  });
+  
+  updateUserInterface();
+  initUserDropdown();
+  
+  restoreSession().then(isLogged => {
+    if (isLogged && currentUser) {
+      console.log("✅ Sessão restaurada com sucesso");
+      updateAllSaveButtons();
+      loadSavedProducts();
+    }
+  });
+  
+  console.log("✅ Sistema de login OTP inicializado");
+}
+
+// ============================================================
+// INICIALIZAÇÃO DO DROPDOWN
+// ============================================================
 
 function initUserDropdown() {
   const userIconBtn = document.getElementById('userIconBtn');
@@ -1042,360 +1292,22 @@ function initUserDropdown() {
 }
 
 // ============================================================
-// FUNÇÕES DO OVERLAY SYSTEM
+// EVENTOS GLOBAIS
 // ============================================================
-
-function toggleOverlayToSignUp() {
-  const container = document.getElementById('container');
-  if (container) container.classList.add('right-panel-active');
-}
-
-function toggleOverlayToLogin() {
-  const container = document.getElementById('container');
-  if (container) container.classList.remove('right-panel-active');
-}
-
-function updateUserInterface() {
-  const saved = localStorage.getItem('vrtigoCurrentUser');
-  currentUser = saved ? JSON.parse(saved) : null;
-  if (currentUser) {
-    updateUserIconVisual(true);
-    updateDropdownUserInfo();
-  } else {
-    updateUserIconVisual(false);
-  }
-}
-
-// ============================================================
-// INICIALIZAÇÃO DO SISTEMA DE LOGIN
-// ============================================================
-
-function initLoginSystem() {
-  console.log("🔧 Inicializando sistema de login...");
-  
-  setupSupabase();
-  
-  const signUpBtn = document.getElementById('signUp');
-  const signInBtn = document.getElementById('signIn');
-  
-  if (signUpBtn) {
-    const newSignUpBtn = signUpBtn.cloneNode(true);
-    signUpBtn.parentNode.replaceChild(newSignUpBtn, signUpBtn);
-    newSignUpBtn.addEventListener('click', toggleOverlayToSignUp);
-  }
-  
-  if (signInBtn) {
-    const newSignInBtn = signInBtn.cloneNode(true);
-    signInBtn.parentNode.replaceChild(newSignInBtn, signInBtn);
-    newSignInBtn.addEventListener('click', toggleOverlayToLogin);
-  }
-  
-  const signupForm = document.getElementById('signupForm');
-  const loginForm = document.getElementById('loginForm');
-  
-  if (signupForm) {
-    const newSignupForm = signupForm.cloneNode(true);
-    signupForm.parentNode.replaceChild(newSignupForm, signupForm);
-    newSignupForm.addEventListener('submit', handleSignUp);
-  }
-  
-  if (loginForm) {
-    const newLoginForm = loginForm.cloneNode(true);
-    loginForm.parentNode.replaceChild(newLoginForm, loginForm);
-    newLoginForm.addEventListener('submit', handleSignIn);
-  }
-  
-  const forgotLink = document.getElementById('forgotPasswordLink');
-  if (forgotLink) {
-    const newForgotLink = forgotLink.cloneNode(true);
-    forgotLink.parentNode.replaceChild(newForgotLink, forgotLink);
-    newForgotLink.addEventListener('click', (e) => { 
-      e.preventDefault(); 
-      openForgotPasswordModal();
-    });
-  }
-  
-  const forgotModal = document.getElementById('forgotPasswordModal');
-  if (forgotModal) {
-    const closeBtn = forgotModal.querySelector('.modal-close');
-    if (closeBtn) {
-      const newCloseBtn = closeBtn.cloneNode(true);
-      closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
-      newCloseBtn.addEventListener('click', closeForgotPasswordModal);
-    }
-    
-    forgotModal.addEventListener('click', (e) => { 
-      if(e.target === forgotModal) closeForgotPasswordModal(); 
-    });
-    
-    const sendResetBtn = document.getElementById('send-reset-code');
-    if (sendResetBtn) {
-      const newSendBtn = sendResetBtn.cloneNode(true);
-      sendResetBtn.parentNode.replaceChild(newSendBtn, sendResetBtn);
-      newSendBtn.addEventListener('click', handleForgotPassword);
-    }
-  }
-  
-  const loginModalElem = document.getElementById('loginModal');
-  if (loginModalElem) {
-    const closeBtn = loginModalElem.querySelector('.modal-close');
-    if (closeBtn) {
-      const newCloseBtn = closeBtn.cloneNode(true);
-      closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
-      newCloseBtn.addEventListener('click', closeLoginModal);
-    }
-    
-    loginModalElem.addEventListener('click', (e) => { 
-      if(e.target === loginModalElem) closeLoginModal(); 
-    });
-  }
-  
-  updateUserInterface();
-  initUserDropdown();
-  
-  restoreSession().then(isLogged => {
-    if (isLogged && currentUser) {
-      console.log("✅ Sessão restaurada com sucesso");
-      updateAllSaveButtons();
-      loadSavedProducts();
-    }
-  });
-  
-  console.log("✅ Sistema de login inicializado");
-}
 
 document.addEventListener('keydown', (e) => { 
   if(e.key === 'Escape') { 
     closeLoginModal(); 
-    closeForgotPasswordModal(); 
     closeUserDropdown(); 
   } 
 });
 
-// ============================================
-// AUTOFILL CONTROL - Supabase + localStorage fallback
-// ============================================
-// CODE
-
-class AutofillControl {
-  constructor() {
-    this.toggle = document.getElementById('autofillToggle');
-    this.control = document.getElementById('autofillControl');
-    this.currentUser = null;
-    this.isLoading = false;
-    this.isAuthenticated = false;
-    
-    this.init();
-  }
-
-  // ===== INICIALIZAÇÃO =====
-  async init() {
-    await this.getCurrentUser();
-    
-    if (this.isAuthenticated && this.currentUser) {
-      this.control.style.display = 'flex';
-      await this.loadPreference();
-      this.applyAutofill();
-      this.toggle.addEventListener('change', () => this.handleToggleChange());
-    }
-  }
-
-  // ===== GET CURRENT USER =====
-  async getCurrentUser() {
-    try {
-      // ✅ CORRIGIDO: usar supabaseClient
-      const { data: { user }, error } = await supabaseClient.auth.getUser();
-      
-      if (error) throw error;
-      
-      if (user) {
-        this.currentUser = user;
-        this.isAuthenticated = true;
-        console.log('✅ Usuário autenticado:', user.email);
-      } else {
-        this.isAuthenticated = false;
-        console.log('ℹ️ Nenhum usuário autenticado');
-      }
-    } catch (error) {
-      console.error('❌ Erro ao buscar usuário:', error);
-      this.isAuthenticated = false;
-    }
-  }
-
-  // ===== CARREGAR PREFERÊNCIA (Supabase → localStorage fallback) =====
-  async loadPreference() {
-    if (!this.currentUser) return;
-    
-    this.isLoading = true;
-    
-    try {
-      // ✅ CORRIGIDO: usar supabaseClient
-      const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('autofill_enabled')
-        .eq('id', this.currentUser.id)
-        .maybeSingle();
-
-      if (!error && data !== null) {
-        const enabled = data.autofill_enabled ?? true;
-        this.toggle.checked = enabled;
-        console.log('✅ Preferência carregada do Supabase:', enabled);
-      } else {
-        throw new Error('Dado não encontrado no Supabase');
-      }
-    } catch (error) {
-      console.warn('⚠️ Erro ao buscar do Supabase. Buscando no localStorage (fallback)...');
-      
-      const fallbackKey = `autofill_pref_${this.currentUser.id}`;
-      const fallbackData = localStorage.getItem(fallbackKey);
-      
-      if (fallbackData !== null) {
-        const enabled = JSON.parse(fallbackData);
-        this.toggle.checked = enabled;
-        console.log('✅ Preferência carregada do localStorage (fallback):', enabled);
-      } else {
-        this.toggle.checked = true;
-        console.log('ℹ️ Usando valor padrão (true)');
-      }
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  // ===== SALVAR PREFERÊNCIA (Supabase → localStorage fallback) =====
-  async savePreference(enabled) {
-    if (!this.currentUser) return;
-    
-    this.isLoading = true;
-    
-    try {
-      // ✅ CORRIGIDO: usar supabaseClient
-      const { error } = await supabaseClient
-        .from('profiles')
-        .update({ autofill_enabled: enabled })
-        .eq('id', this.currentUser.id);
-
-      if (error) throw error;
-
-      console.log('✅ Preferência salva no Supabase:', enabled);
-      localStorage.removeItem(`autofill_pref_${this.currentUser.id}`);
-      
-    } catch (error) {
-      console.warn('⚠️ Erro ao salvar no Supabase. Salvando no localStorage (fallback)...');
-      
-      const fallbackKey = `autofill_pref_${this.currentUser.id}`;
-      localStorage.setItem(fallbackKey, JSON.stringify(enabled));
-      console.log('✅ Preferência salva no localStorage (fallback):', enabled);
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  // ===== APLICAR AUTOFILL NOS INPUTS =====
-  applyAutofill() {
-    const enabled = this.toggle.checked;
-    
-    const loginEmail = document.getElementById('loginEmail');
-    const loginPassword = document.getElementById('loginPassword');
-    const signupEmail = document.getElementById('signupEmail');
-    const signupPassword = document.getElementById('signupPassword');
-    const signupConfirm = document.getElementById('signupConfirmPassword');
-    const signupName = document.getElementById('signupName');
-
-    const setAutocomplete = (input, value) => {
-      if (input) {
-        if (value) {
-          input.setAttribute('autocomplete', value);
-        } else {
-          input.setAttribute('autocomplete', 'off');
-        }
-      }
-    };
-
-    if (enabled) {
-      setAutocomplete(loginEmail, 'email');
-      setAutocomplete(loginPassword, 'current-password');
-      setAutocomplete(signupEmail, 'new-email');
-      setAutocomplete(signupPassword, 'new-password');
-      setAutocomplete(signupConfirm, 'new-password');
-      setAutocomplete(signupName, 'off');
-      console.log('🔓 Autofill ATIVADO');
-    } else {
-      setAutocomplete(loginEmail, 'off');
-      setAutocomplete(loginPassword, 'off');
-      setAutocomplete(signupEmail, 'off');
-      setAutocomplete(signupPassword, 'off');
-      setAutocomplete(signupConfirm, 'off');
-      setAutocomplete(signupName, 'off');
-      
-      if (loginEmail) loginEmail.value = '';
-      if (loginPassword) loginPassword.value = '';
-      if (signupEmail) signupEmail.value = '';
-      if (signupPassword) signupPassword.value = '';
-      if (signupConfirm) signupConfirm.value = '';
-      if (signupName) signupName.value = '';
-      
-      console.log('🔒 Autofill DESATIVADO');
-    }
-  }
-
-  // ===== HANDLER DO TOGGLE =====
-  handleToggleChange() {
-    if (this.isLoading) return;
-    
-    const enabled = this.toggle.checked;
-    this.applyAutofill();
-    this.savePreference(enabled);
-  }
-
-  // ===== SYNC PREFERENCE =====
-  async syncPreference() {
-    if (!this.currentUser) return;
-    
-    console.log('🔄 Sincronizando preferência...');
-    localStorage.removeItem(`autofill_pref_${this.currentUser.id}`);
-    await this.loadPreference();
-    this.applyAutofill();
-  }
-}
-
-// ============================================
-// INICIALIZAR CONTROLE DE AUTOFILL
-// ============================================
-
-// ============================================
-// FUNÇÕES AUXILIARES
-// ============================================
-
-function isAutofillEnabled() {
-  if (window.autofillControl) {
-    return window.autofillControl.toggle.checked;
-  }
-  return true;
-}
-
-function syncAutofillPreference() {
-  if (window.autofillControl) {
-    window.autofillControl.syncPreference();
-  }
-}
-
-function showAutofillControl(show) {
-  const control = document.getElementById('autofillControl');
-  if (control) {
-    control.style.display = show ? 'flex' : 'none';
-  }
-}
-
-window.isAutofillEnabled = isAutofillEnabled;
-window.syncAutofillPreference = syncAutofillPreference;
-window.showAutofillControl = showAutofillControl;
-
 // ============================================================
 // INICIALIZAÇÃO PRINCIPAL
 // ============================================================
+
 document.addEventListener("DOMContentLoaded", async function() {
-  console.log("🚀 VRTIGO - Sistema completo iniciado!");
+  console.log("🚀 VRTIGO - Sistema OTP iniciado!");
   
   initNavigation();
   initProductModal();
@@ -1406,9 +1318,6 @@ document.addEventListener("DOMContentLoaded", async function() {
   initFilters();
   initLoginSystem();
   
-  // ✅ INICIALIZAR AUTOFILL CONTROL
-  window.autofillControl = new AutofillControl();
-  
   await carregarProdutos();
   
   const savesSection = safeGetElement('saves');
@@ -1418,7 +1327,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     }, { threshold: 0.1 }).observe(savesSection);
   }
   
-  console.log("✅ Sistema VRTIGO inicializado com sucesso!");
+  console.log("✅ Sistema VRTIGO OTP inicializado com sucesso!");
 });
 
 const style = document.createElement('style');
@@ -1434,4 +1343,4 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-console.log("✅ Script VRTIGO completo carregado!");
+console.log("✅ Script VRTIGO OTP carregado!");

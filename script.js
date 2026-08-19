@@ -1191,7 +1191,7 @@ function updateUserInterface() {
 // INICIALIZAÇÃO DO SISTEMA DE LOGIN
 // ============================================================
 
-function initLoginSystem() {
+/*function initLoginSystem() {
   console.log("🔧 Inicializando sistema de login OTP...");
   
   setupSupabase();
@@ -1226,7 +1226,7 @@ function initLoginSystem() {
     const newLoginForm = loginForm.cloneNode(true);
     loginForm.parentNode.replaceChild(newLoginForm, loginForm);
     newLoginForm.addEventListener('submit', handleSignIn);
-  }
+  }*/
   
   // Fechar modal
   const loginModalElem = document.getElementById('loginModal');

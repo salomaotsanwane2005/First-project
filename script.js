@@ -914,6 +914,7 @@ async function verifyOtp(email, token, formType) {
 }
 
 // Função para salvar perfil do usuário (cadastro)
+// Função para salvar perfil do usuário (cadastro)
 async function saveUserProfile(userId) {
   try {
     const name = document.getElementById('signupName')?.value.trim() || '';
@@ -922,6 +923,9 @@ async function saveUserProfile(userId) {
     const gender = document.getElementById('signupGender')?.value || '';
     const location = document.getElementById('signupLocation')?.value.trim() || '';
     
+    console.log('📝 Salvando perfil:', { name, phone, birth, gender, location });
+    
+    // ✅ CORRIGIDO: usar os nomes exatos das colunas no Supabase
     const { error } = await supabaseClient
       .from('profiles')
       .upsert({
@@ -935,12 +939,12 @@ async function saveUserProfile(userId) {
       }, { onConflict: 'id' });
     
     if (error) {
-      console.error('Erro ao salvar perfil:', error);
+      console.error('❌ Erro ao salvar perfil:', error);
     } else {
       console.log('✅ Perfil salvo com sucesso');
     }
   } catch (error) {
-    console.error('Erro ao salvar perfil:', error);
+    console.error('❌ Erro ao salvar perfil:', error);
   }
 }
 

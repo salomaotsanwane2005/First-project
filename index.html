@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>VRTIGO | Premium Clothing</title>
   <meta name="description" content="VRTIGO - Camisetas oversized premium. Qualidade e estilo para o seu dia a dia.">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -401,7 +401,7 @@
     }
 
     /* ============================================
-       RESPONSIVIDADE DO MODAL - MOBILE
+       RESPONSIVIDADE DO MODAL - MOBILE (1 PASSO)
        ============================================ */
 
     @media (max-width: 768px) {
@@ -409,9 +409,9 @@
       #container {
         display: flex !important;
         flex-direction: row !important;
-        min-height: 480px !important;
-        max-height: 90vh !important;
-        overflow: hidden !important;
+        min-height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
         border-radius: 16px !important;
         position: relative !important;
         width: 100% !important;
@@ -428,16 +428,19 @@
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
-        padding: 30px 20px !important;
+        padding: 20px 16px !important;
         flex-shrink: 0 !important;
-        min-height: 480px !important;
+        min-height: auto !important;
+        max-height: 75dvh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
         transition: opacity 0.3s ease, visibility 0.3s ease !important;
       }
 
-      /* Formulário ativo */
+      /* Formulário ativo - COM SCROLL */
       .sign-in-container.active,
       .sign-up-container.active {
         opacity: 1 !important;
@@ -455,8 +458,9 @@
         display: flex !important;
         justify-content: center;
         gap: 16px;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         padding: 0 10px;
+        flex-shrink: 0;
       }
 
       .auth-toggle button {
@@ -487,11 +491,11 @@
         max-width: 100% !important;
         min-height: auto !important;
         flex: 1 !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
       }
 
       #signupForm h2, #loginForm h2 {
-        font-size: 1.3rem !important;
+        font-size: 1.2rem !important;
         margin-bottom: 4px !important;
       }
 
@@ -518,15 +522,22 @@
         padding: 11px !important;
         font-size: 14px !important;
         min-height: 42px !important;
+        margin-top: 12px !important;
       }
 
       /* Modal */
       .login-modal-content {
         width: 95% !important;
         max-width: 95% !important;
-        max-height: 95vh !important;
+        max-height: 90dvh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
         border-radius: 16px !important;
-        overflow: hidden !important;
+      }
+
+      .modal-body {
+        padding: 0 !important;
+        overflow: visible !important;
       }
 
       .modal-close {
@@ -538,11 +549,6 @@
         z-index: 200 !important;
       }
 
-      .modal-body {
-        padding: 0 !important;
-        overflow: hidden !important;
-      }
-
       .otp-container small {
         font-size: 11px !important;
       }
@@ -550,14 +556,10 @@
 
     /* Telas muito pequenas */
     @media (max-width: 480px) {
-      #container {
-        min-height: 420px !important;
-      }
-
       .sign-in-container,
       .sign-up-container {
-        padding: 20px 16px !important;
-        min-height: 420px !important;
+        padding: 16px 12px !important;
+        max-height: 80dvh !important;
       }
 
       .auth-toggle button {
@@ -566,7 +568,7 @@
       }
 
       #signupForm h2, #loginForm h2 {
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
       }
 
       #signupForm input, #loginForm input,
@@ -586,6 +588,7 @@
       .login-modal-content {
         width: 98% !important;
         border-radius: 12px !important;
+        max-height: 95dvh !important;
       }
 
       .modal-close {
@@ -817,7 +820,7 @@
     <div class="modal-content login-modal-content">
       <button class="modal-close close-modal-btn">&times;</button>
       
-      <div class="modal-body" style="padding: 0; overflow: hidden;">
+      <div class="modal-body" style="padding: 0; overflow: visible;">
         <div class="form-container" id="container">
           
           <!-- ========== BOTÕES DE ALTERNÂNCIA (MOBILE) ========== -->
@@ -852,7 +855,7 @@
             </form>
           </div>
 
-          <!-- ========== CADASTRO ========== -->
+          <!-- ========== CADASTRO (1 PASSO COM SCROLL) ========== -->
           <div class="form-container sign-up-container" id="signupContainer">
             <form id="signupForm">
               <h2>Criar Conta</h2>
@@ -937,6 +940,61 @@
         window.scrollTo({ top: elementPosition, behavior: 'smooth' });
       }
     }
+    
+    // ============================================
+    // ALTERNÂNCIA MOBILE (toggle entre login/cadastro)
+    // ============================================
+    function initAuthToggleMobile() {
+      const toggleBtns = document.querySelectorAll('#authToggle button');
+      const loginContainer = document.getElementById('loginContainer');
+      const signupContainer = document.getElementById('signupContainer');
+
+      if (!toggleBtns.length || !loginContainer || !signupContainer) {
+        console.warn('⚠️ Elementos de alternância não encontrados');
+        return;
+      }
+
+      toggleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const target = this.dataset.target;
+          
+          // Atualizar botões
+          toggleBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+
+          // Mostrar container correto
+          if (target === 'login') {
+            loginContainer.classList.add('active');
+            signupContainer.classList.remove('active');
+          } else {
+            signupContainer.classList.add('active');
+            loginContainer.classList.remove('active');
+          }
+        });
+      });
+    }
+    
+    // ============================================
+    // FUNÇÃO SHOW MESSAGE (para o modal)
+    // ============================================
+    function showMessage(message, type, element) {
+      if (!element) return;
+      element.style.display = 'block';
+      element.textContent = message;
+      element.style.cssText = `margin:10px 0;padding:12px;border-radius:8px;font-size:13px;text-align:center;font-weight:500;display:block;${
+        type === 'success' ? 'background-color:#d4edda;color:#155724;border:1px solid #c3e6cb;' :
+        type === 'error' ? 'background-color:#f8d7da;color:#721c24;border:1px solid #f5c6cb;' :
+        'background-color:#cce5ff;color:#004085;border:1px solid #b8daff;'
+      }`;
+      setTimeout(() => { if(element) element.style.display = 'none'; }, 5000);
+    }
+    
+    // ============================================
+    // INICIALIZAR TUDO
+    // ============================================
+    document.addEventListener("DOMContentLoaded", function() {
+      initAuthToggleMobile();
+    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

@@ -1191,12 +1191,12 @@ function updateUserInterface() {
 // INICIALIZAÇÃO DO SISTEMA DE LOGIN
 // ============================================================
 
-/*function initLoginSystem() {
+function initLoginSystem() {
   console.log("🔧 Inicializando sistema de login OTP...");
   
   setupSupabase();
   
-  // Botões do overlay
+  /* Botões do overlay
   const signUpBtn = document.getElementById('signUp');
   const signInBtn = document.getElementById('signIn');
   
@@ -1210,7 +1210,7 @@ function updateUserInterface() {
     const newSignInBtn = signInBtn.cloneNode(true);
     signInBtn.parentNode.replaceChild(newSignInBtn, signInBtn);
     newSignInBtn.addEventListener('click', toggleOverlayToLogin);
-  }
+  }*/
   
   // Formulários
   const signupForm = document.getElementById('signupForm');
@@ -1226,7 +1226,7 @@ function updateUserInterface() {
     const newLoginForm = loginForm.cloneNode(true);
     loginForm.parentNode.replaceChild(newLoginForm, loginForm);
     newLoginForm.addEventListener('submit', handleSignIn);
-  }*/
+  
   
   // Fechar modal
   const loginModalElem = document.getElementById('loginModal');

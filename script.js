@@ -840,7 +840,10 @@ async function sendOtp(email, formType) {
     const { error } = await supabaseClient.auth.signInWithOtp({
       email: email,
       options: {
-        shouldCreateUser: true
+        shouldCreateUser: true,
+        data: {
+          nome: document.getElementById('signupName')?.value.trim() || ''
+        }
       }
     });
     
@@ -861,8 +864,8 @@ async function sendOtp(email, formType) {
 async function verifyOtp(email, token, formType) {
   const msgDiv = document.getElementById('login-message');
   
-  if (!token || token.length < 6) {
-    showMessage('❌ Digite o código de 6 dígitos', 'error', msgDiv);
+  if (!token || token.length < 8) {
+    showMessage('❌ Digite o código de 8 dígitos', 'error', msgDiv);
     return false;
   }
   
@@ -914,7 +917,6 @@ async function verifyOtp(email, token, formType) {
 }
 
 // Função para salvar perfil do usuário (cadastro)
-// Função para salvar perfil do usuário (cadastro)
 async function saveUserProfile(userId) {
   try {
     const name = document.getElementById('signupName')?.value.trim() || '';
@@ -923,25 +925,58 @@ async function saveUserProfile(userId) {
     const gender = document.getElementById('signupGender')?.value || '';
     const location = document.getElementById('signupLocation')?.value.trim() || '';
     
-    console.log('📝 Salvando perfil:', { name, phone, birth, gender, location });
+    console.log('📝 Salvando perfil:', { userId, name, phone, birth, gender, location });
     
-    // ✅ CORRIGIDO: usar os nomes exatos das colunas no Supabase
-    const { error } = await supabaseClient
+    // Verificar se já existe um perfil
+    const { data: existingProfile, error: checkError } = await supabaseClient
       .from('profiles')
-      .upsert({
-        id: userId,
-        nome: name,
-        telefone: phone,
-        data_nascimento: birth,
-        sexo: gender,
-        localizacao: location,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'id' });
+      .select('id')
+      .eq('id', userId)
+      .single();
     
-    if (error) {
-      console.error('❌ Erro ao salvar perfil:', error);
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('❌ Erro ao verificar perfil existente:', checkError);
+    }
+    
+    let result;
+    
+    if (existingProfile) {
+      // Atualizar perfil existente
+      console.log('🔄 Atualizando perfil existente...');
+      result = await supabaseClient
+        .from('profiles')
+        .update({
+          nome: name,
+          telefone: phone,
+          data_nascimento: birth,
+          sexo: gender,
+          localizacao: location,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
     } else {
-      console.log('✅ Perfil salvo com sucesso');
+      // Inserir novo perfil
+      console.log('📝 Inserindo novo perfil...');
+      result = await supabaseClient
+        .from('profiles')
+        .insert({
+          id: userId,
+          nome: name,
+          telefone: phone,
+          data_nascimento: birth,
+          sexo: gender,
+          localizacao: location,
+          is_admin: false,
+          role: 'cliente',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+    }
+    
+    if (result.error) {
+      console.error('❌ Erro ao salvar perfil:', result.error);
+    } else {
+      console.log('✅ Perfil salvo com sucesso!');
     }
   } catch (error) {
     console.error('❌ Erro ao salvar perfil:', error);
@@ -1003,10 +1038,6 @@ async function handleSignUp(event) {
     showMessage('❌ Insira sua cidade e estado', 'error', msgDiv);
     return;
   }
-  
-  // Salvar dados temporários no localStorage para uso posterior
-  const tempData = { name, phone, birth, gender, location };
-  localStorage.setItem('vrtigoTempSignup', JSON.stringify(tempData));
   
   // Enviar OTP
   await sendOtp(email, 'signup');

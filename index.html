@@ -400,76 +400,200 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ============================================
+       RESPONSIVIDADE DO MODAL - MOBILE
+       ============================================ */
+
     @media (max-width: 768px) {
+      /* Container ocupa 100% da largura */
+      #container {
+        display: flex !important;
+        flex-direction: row !important;
+        min-height: 480px !important;
+        max-height: 90vh !important;
+        overflow: hidden !important;
+        border-radius: 16px !important;
+        position: relative !important;
+        width: 100% !important;
+        background: var(--bg-primary) !important;
+      }
+
+      /* Cada formulário ocupa 100% da largura, mas fica escondido */
       .sign-in-container,
       .sign-up-container {
         width: 100% !important;
+        min-width: 100% !important;
         position: relative !important;
         transform: none !important;
-        opacity: 1 !important;
-        min-height: 400px !important;
-      }
-
-      #container {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        padding: 30px 20px !important;
+        flex-shrink: 0 !important;
+        min-height: 480px !important;
+        display: flex !important;
         flex-direction: column !important;
-        min-height: auto !important;
-        flex-wrap: wrap !important;
+        justify-content: center !important;
+        transition: opacity 0.3s ease, visibility 0.3s ease !important;
       }
 
-      #container.right-panel-active .sign-in-container {
-        transform: none !important;
+      /* Formulário ativo */
+      .sign-in-container.active,
+      .sign-up-container.active {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
       }
 
-      #container.right-panel-active .sign-up-container {
-        transform: none !important;
-      }
-
+      /* Esconder overlay no mobile */
       .overlay-container {
         display: none !important;
       }
 
-      .form-container {
-        position: relative !important;
-        padding: 30px 20px !important;
+      /* Botões de alternância (Entrar/Cadastrar) - mobile */
+      .auth-toggle {
+        display: flex !important;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 20px;
+        padding: 0 10px;
       }
 
+      .auth-toggle button {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid var(--border);
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 600;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      .auth-toggle button.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+      }
+
+      .auth-toggle button:hover {
+        color: var(--primary);
+      }
+
+      /* Formulários */
       #signupForm, #loginForm {
-        padding: 0 20px !important;
+        padding: 0 !important;
         max-width: 100% !important;
-      }
-
-      .login-modal-content {
-        width: 95% !important;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .form-container {
-        padding: 20px 16px !important;
+        min-height: auto !important;
+        flex: 1 !important;
+        justify-content: center !important;
       }
 
       #signupForm h2, #loginForm h2 {
-        font-size: 1.2rem !important;
-      }
-
-      #signupForm input, #loginForm input,
-      #signupForm select {
-        padding: 10px 12px !important;
-        font-size: 14px !important;
-      }
-
-      .ghost {
-        padding: 8px 20px !important;
-        font-size: 12px !important;
-      }
-
-      .submit-btn {
-        padding: 10px 20px !important;
-        font-size: 14px !important;
+        font-size: 1.3rem !important;
+        margin-bottom: 4px !important;
       }
 
       #signupForm p, #loginForm p {
         font-size: 12px !important;
+        margin-bottom: 12px !important;
+      }
+
+      /* Campos */
+      #signupForm input, #loginForm input,
+      #signupForm select {
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        min-height: 40px !important;
+      }
+
+      #signupForm .form-group, #loginForm .form-group {
+        margin: 5px 0 !important;
+      }
+
+      /* Botões */
+      #signupForm .submit-btn, 
+      #loginForm .submit-btn {
+        padding: 11px !important;
+        font-size: 14px !important;
+        min-height: 42px !important;
+      }
+
+      /* Modal */
+      .login-modal-content {
+        width: 95% !important;
+        max-width: 95% !important;
+        max-height: 95vh !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+      }
+
+      .modal-close {
+        top: 10px !important;
+        right: 10px !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+        z-index: 200 !important;
+      }
+
+      .modal-body {
+        padding: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .otp-container small {
+        font-size: 11px !important;
+      }
+    }
+
+    /* Telas muito pequenas */
+    @media (max-width: 480px) {
+      #container {
+        min-height: 420px !important;
+      }
+
+      .sign-in-container,
+      .sign-up-container {
+        padding: 20px 16px !important;
+        min-height: 420px !important;
+      }
+
+      .auth-toggle button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+      }
+
+      #signupForm h2, #loginForm h2 {
+        font-size: 1.1rem !important;
+      }
+
+      #signupForm input, #loginForm input,
+      #signupForm select {
+        padding: 8px 10px !important;
+        font-size: 13px !important;
+        min-height: 36px !important;
+      }
+
+      #signupForm .submit-btn, 
+      #loginForm .submit-btn {
+        padding: 9px !important;
+        font-size: 13px !important;
+        min-height: 38px !important;
+      }
+
+      .login-modal-content {
+        width: 98% !important;
+        border-radius: 12px !important;
+      }
+
+      .modal-close {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 12px !important;
+        top: 6px !important;
+        right: 6px !important;
       }
     }
   </style>
@@ -696,8 +820,40 @@
       <div class="modal-body" style="padding: 0; overflow: hidden;">
         <div class="form-container" id="container">
           
+          <!-- ========== BOTÕES DE ALTERNÂNCIA (MOBILE) ========== -->
+          <div class="auth-toggle" id="authToggle">
+            <button class="active" data-target="login">Entrar</button>
+            <button data-target="signup">Cadastrar</button>
+          </div>
+          
+          <!-- ========== LOGIN ========== -->
+          <div class="form-container sign-in-container active" id="loginContainer">
+            <form id="loginForm">
+              <h2>Entrar</h2>
+              <p>Digite seu email para receber um código de acesso.</p>
+              
+              <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+              </div>
+              
+              <!-- Campo OTP (aparece após envio do email) -->
+              <div id="loginOtpContainer" class="otp-container">
+                <div class="form-group">
+                  <input type="text" id="loginOtp" placeholder="Código de 8 dígitos" maxlength="8" inputmode="numeric">
+                </div>
+                <small>
+                  Enviamos um código para seu email. <a href="#" id="loginResendOtp">Reenviar</a>
+                </small>
+              </div>
+              
+              <button type="submit" id="loginSubmitBtn" class="submit-btn">
+                Enviar código
+              </button>
+            </form>
+          </div>
+
           <!-- ========== CADASTRO ========== -->
-          <div class="form-container sign-up-container">
+          <div class="form-container sign-up-container" id="signupContainer">
             <form id="signupForm">
               <h2>Criar Conta</h2>
               <p>Preencha seus dados e receba um código de acesso por email.</p>
@@ -747,33 +903,7 @@
             </form>
           </div>
 
-          <!-- ========== LOGIN ========== -->
-          <div class="form-container sign-in-container">
-            <form id="loginForm">
-              <h2>Entrar</h2>
-              <p>Digite seu email para receber um código de acesso.</p>
-              
-              <div class="form-group">
-                <input type="email" id="loginEmail" placeholder="Email" required>
-              </div>
-              
-              <!-- Campo OTP (aparece após envio do email) -->
-              <div id="loginOtpContainer" class="otp-container">
-                <div class="form-group">
-                  <input type="text" id="loginOtp" placeholder="Código de 6 dígitos" maxlength="6" inputmode="numeric">
-                </div>
-                <small>
-                  Enviamos um código para seu email. <a href="#" id="loginResendOtp">Reenviar</a>
-                </small>
-              </div>
-              
-              <button type="submit" id="loginSubmitBtn" class="submit-btn">
-                Enviar código
-              </button>
-            </form>
-          </div>
-
-          <!-- ========== OVERLAY ========== -->
+          <!-- ========== OVERLAY (DESKTOP) ========== -->
           <div class="overlay-container">
             <div class="overlay">
               <div class="overlay-panel overlay-left">

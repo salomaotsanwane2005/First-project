@@ -608,16 +608,16 @@
       <div class="nav-brand">
         <div class="logo">VRTIGO</div>
         <div class="nav-controls">
-          <button class="nav-btn faq-btn" aria-label="FAQ">
+          <button class="nav-btn faq-btn" aria-label="FAQ" id="faqBtn">
             <i class="fas fa-question"></i>
           </button>
-          <button class="nav-btn cart-btn" aria-label="Carrinho">
+          <button class="nav-btn cart-btn" aria-label="Carrinho" id="cartBtn">
             <i class="fas fa-shopping-cart"></i>
           </button>
           <button class="nav-btn user-icon-btn" id="userIconBtn" aria-label="Usuário">
             <i class="fas fa-user"></i>
           </button>
-          <button class="nav-btn theme-toggle-btn" aria-label="Alternar tema">
+          <button class="nav-btn theme-toggle-btn" aria-label="Alternar tema" id="themeToggleBtn">
             <i class="fas fa-moon"></i>
           </button>
         </div>
@@ -824,7 +824,7 @@
         <div class="form-container" id="container">
           
           <!-- ========== BOTÕES DE ALTERNÂNCIA (MOBILE) ========== -->
-          <div class="auth-toggle" id="authToggle">
+          <div class="auth-toggle" id="authToggle" style="display: none;">
             <button class="active" data-target="login">Entrar</button>
             <button data-target="signup">Cadastrar</button>
           </div>
@@ -940,61 +940,6 @@
         window.scrollTo({ top: elementPosition, behavior: 'smooth' });
       }
     }
-    
-    // ============================================
-    // ALTERNÂNCIA MOBILE (toggle entre login/cadastro)
-    // ============================================
-    function initAuthToggleMobile() {
-      const toggleBtns = document.querySelectorAll('#authToggle button');
-      const loginContainer = document.getElementById('loginContainer');
-      const signupContainer = document.getElementById('signupContainer');
-
-      if (!toggleBtns.length || !loginContainer || !signupContainer) {
-        console.warn('⚠️ Elementos de alternância não encontrados');
-        return;
-      }
-
-      toggleBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-          const target = this.dataset.target;
-          
-          // Atualizar botões
-          toggleBtns.forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-
-          // Mostrar container correto
-          if (target === 'login') {
-            loginContainer.classList.add('active');
-            signupContainer.classList.remove('active');
-          } else {
-            signupContainer.classList.add('active');
-            loginContainer.classList.remove('active');
-          }
-        });
-      });
-    }
-    
-    // ============================================
-    // FUNÇÃO SHOW MESSAGE (para o modal)
-    // ============================================
-    function showMessage(message, type, element) {
-      if (!element) return;
-      element.style.display = 'block';
-      element.textContent = message;
-      element.style.cssText = `margin:10px 0;padding:12px;border-radius:8px;font-size:13px;text-align:center;font-weight:500;display:block;${
-        type === 'success' ? 'background-color:#d4edda;color:#155724;border:1px solid #c3e6cb;' :
-        type === 'error' ? 'background-color:#f8d7da;color:#721c24;border:1px solid #f5c6cb;' :
-        'background-color:#cce5ff;color:#004085;border:1px solid #b8daff;'
-      }`;
-      setTimeout(() => { if(element) element.style.display = 'none'; }, 5000);
-    }
-    
-    // ============================================
-    // INICIALIZAR TUDO
-    // ============================================
-    document.addEventListener("DOMContentLoaded", function() {
-      initAuthToggleMobile();
-    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

@@ -842,7 +842,7 @@ function setupSupabase() {
 }
 
 // ============================================================
-// FUNÇÕES OTP - CADASTRO E LOGIN
+// FUNÇÕES OTP - CADASTRO E LOGIN (CORRIGIDO)
 // ============================================================
 
 function toggleOtpFields(formType, show) {
@@ -851,7 +851,13 @@ function toggleOtpFields(formType, show) {
   const emailField = document.getElementById(formType === 'signup' ? 'signupEmail' : 'loginEmail');
   
   if (container) {
-    container.classList.toggle('show', show);
+    if (show) {
+      container.classList.add('show');
+      container.style.display = 'block';
+    } else {
+      container.classList.remove('show');
+      container.style.display = 'none';
+    }
   }
   
   if (submitBtn) {
@@ -1118,7 +1124,10 @@ function closeLoginModal() {
 function resetOtpFields() {
   ['signupOtpContainer', 'loginOtpContainer'].forEach(id => {
     const container = document.getElementById(id);
-    if (container) container.classList.remove('show');
+    if (container) {
+      container.classList.remove('show');
+      container.style.display = 'none';
+    }
   });
   ['signupOtp', 'loginOtp'].forEach(id => {
     const input = document.getElementById(id);

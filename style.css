@@ -589,9 +589,8 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
-  font-size: 1rem;
-  transition: all 0.3s ease;
   font-size: 16px !important;
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus,
@@ -1387,19 +1386,24 @@ body {
     overflow: visible;
     width: 100%;
     background: var(--bg-primary);
+    padding: 0;
   }
 
   .overlay-container {
     display: none !important;
   }
 
+  /* Toggle no topo - BOTÕES ENCIMA */
   .auth-toggle {
     display: flex !important;
     justify-content: center;
     gap: 16px;
-    margin-bottom: 20px;
-    padding: 16px 10px 0;
+    padding: 16px 10px;
     flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    background: var(--bg-primary);
+    z-index: 10;
   }
 
   .auth-toggle button {
@@ -1424,6 +1428,7 @@ body {
     color: var(--primary);
   }
 
+  /* Containers dos formulários - SEM ESPAÇO DESNECESSÁRIO */
   .sign-in-container,
   .sign-up-container {
     position: relative;
@@ -1433,11 +1438,11 @@ body {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    padding: 20px 16px;
+    padding: 10px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: auto;
     transition: opacity 0.3s ease, visibility 0.3s ease;
     background: var(--bg-primary);
@@ -1450,10 +1455,11 @@ body {
     pointer-events: auto;
   }
 
+  /* Formulários - COMEÇAM LOGO APÓS O TOGGLE */
   #signupForm, #loginForm {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     flex-direction: column;
     padding: 0;
     width: 100%;
@@ -1463,40 +1469,43 @@ body {
   }
 
   #signupForm h2, #loginForm h2 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
+    font-size: 1.4rem;
+    margin-bottom: 4px;
     color: var(--text);
   }
 
   #signupForm p, #loginForm p {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-secondary);
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+  }
+
+  /* Campos com espaçamento reduzido */
+  #signupForm .form-group, #loginForm .form-group {
+    width: 100%;
+    margin: 4px 0;
   }
 
   #signupForm input, #loginForm input,
   #signupForm select {
     text-align: center;
     width: 100%;
-    padding: 12px 15px;
-    font-size: 16px;
+    padding: 10px 12px;
+    font-size: 14px;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
+    min-height: 40px;
   }
 
-  #signupForm .form-group, #loginForm .form-group {
-    width: 100%;
-    margin: 8px 0;
-  }
-
+  /* Botão de enviar código */
   #signupForm .submit-btn, 
   #loginForm .submit-btn {
-    margin-top: 15px;
+    margin-top: 10px;
     width: 100%;
-    padding: 14px;
-    font-size: 16px;
+    padding: 12px;
+    font-size: 15px;
     font-weight: 600;
     border: none;
     border-radius: 50px;
@@ -1505,13 +1514,38 @@ body {
     background: var(--gradient);
     color: var(--background);
     box-shadow: 0 4px 15px rgba(198, 138, 255, 0.3);
-    min-height: 50px;
+    min-height: 45px;
+  }
+
+  /* OTP Container - OCULTO POR PADRÃO */
+  .otp-container {
+    display: none;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .otp-container.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+    margin-top: 10px;
+  }
+
+  .otp-container input {
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  .otp-container small {
+    font-size: 11px;
+    display: block;
+    text-align: center;
+    margin-top: 5px;
   }
 
   .login-modal-content {
     width: 95%;
     max-width: 400px;
-    max-height: 90dvh;
+    max-height: 85dvh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     border-radius: 16px;
@@ -1520,25 +1554,6 @@ body {
   .modal-body {
     padding: 0;
     overflow: visible;
-  }
-
-  .otp-container {
-    width: 100%;
-  }
-
-  .otp-container input {
-    text-align: center;
-  }
-
-  .otp-container small {
-    font-size: 11px;
-  }
-
-  .ghost {
-    padding: 12px 30px;
-    font-size: 13px;
-    min-height: 44px;
-    min-width: 100px;
   }
 
   .user-dropdown {
@@ -1606,34 +1621,34 @@ body {
   }
 
   .about-content {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
   .about-stats {
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 1rem !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
   }
 
   .stat {
-    flex: 1 !important;
-    min-width: 100px !important;
-    padding: 1.5rem 1rem !important;
+    flex: 1;
+    min-width: 100px;
+    padding: 1.5rem 1rem;
   }
 
   .stat-number {
-    font-size: 2rem !important;
+    font-size: 2rem;
   }
 
   .stat-label {
-    font-size: 0.85rem !important;
+    font-size: 0.85rem;
   }
 
   .about-text p {
-    font-size: 1rem !important;
-    line-height: 1.6 !important;
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
   .contact-content {
@@ -1699,6 +1714,9 @@ body {
   }
 }
 
+/* ============================================================
+   TELAS MUITO PEQUENAS (<= 480px)
+   ============================================================ */
 @media (max-width: 480px) {
   .nav-btn {
     width: 38px;
@@ -1757,12 +1775,12 @@ body {
   }
 
   .about-stats {
-    flex-direction: column !important;
-    align-items: stretch !important;
+    flex-direction: column;
+    align-items: stretch;
   }
   
   .stat {
-    width: 100% !important;
+    width: 100%;
   }
 
   .sign-in-container,
@@ -1776,26 +1794,27 @@ body {
   }
 
   #signupForm h2, #loginForm h2 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
   #signupForm input, #loginForm input,
   #signupForm select {
-    padding: 10px 12px;
-    font-size: 14px;
+    padding: 8px 10px;
+    font-size: 13px;
+    min-height: 36px;
   }
 
   #signupForm .submit-btn, 
   #loginForm .submit-btn {
-    padding: 12px;
+    padding: 10px;
     font-size: 14px;
-    min-height: 44px;
+    min-height: 40px;
   }
 
   .login-modal-content {
     width: 98%;
     border-radius: 12px;
-    max-height: 95dvh;
+    max-height: 90dvh;
   }
 
   .modal-close {
@@ -1814,6 +1833,9 @@ body {
   }
 }
 
+/* ============================================================
+   TELAS MUITO PEQUENAS (<= 375px)
+   ============================================================ */
 @media (max-width: 375px) {
   .nav-btn {
     width: 35px;

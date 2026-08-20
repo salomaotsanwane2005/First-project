@@ -1340,6 +1340,7 @@ function initAuthToggleMobile() {
   const loginContainer = document.getElementById('loginContainer');
   const signupContainer = document.getElementById('signupContainer');
   const overlayContainer = document.querySelector('.overlay-container');
+  const container = document.getElementById('container');
 
   if (!toggleBtns.length || !loginContainer || !signupContainer) {
     console.warn('⚠️ Elementos de alternância não encontrados');
@@ -1351,23 +1352,31 @@ function initAuthToggleMobile() {
     const authToggle = document.getElementById('authToggle');
     
     if (isMobile) {
-      // Mobile: mostrar toggle, esconder overlay
+      // MOBILE: Sistema de toggle
       if (authToggle) authToggle.style.display = 'flex';
       if (overlayContainer) overlayContainer.style.display = 'none';
       
-      // Garantir que login esteja ativo por padrão
-      if (!loginContainer.classList.contains('active')) {
-        loginContainer.classList.add('active');
-      }
-      if (signupContainer.classList.contains('active')) {
-        signupContainer.classList.remove('active');
-      }
+      // Resetar classes do overlay
+      if (container) container.classList.remove('right-panel-active');
+      
+      // Mostrar login por padrão
+      loginContainer.classList.add('active');
+      signupContainer.classList.remove('active');
+      
+      // Atualizar botões do toggle
+      toggleBtns.forEach(btn => {
+        if (btn.dataset.target === 'login') {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
     } else {
-      // Desktop: esconder toggle, mostrar overlay
+      // DESKTOP: Sistema de overlay
       if (authToggle) authToggle.style.display = 'none';
       if (overlayContainer) overlayContainer.style.display = 'block';
       
-      // Resetar classes
+      // Resetar classes mobile
       loginContainer.classList.remove('active');
       signupContainer.classList.remove('active');
     }

@@ -452,9 +452,16 @@ function scrollToSection(sectionId) {
 }
 
 function initNavigation() {
+  // Botões CTA com data-scroll
+  document.querySelectorAll('[data-scroll]').forEach(btn => {
+    btn.addEventListener('click', () => scrollToSection(btn.dataset.scroll));
+  });
+  
+  // Navegação inferior
   document.querySelectorAll('.nav-item, .bottom-nav a').forEach(link => {
     link.addEventListener('click', (e) => { e.preventDefault(); scrollToSection(link.getAttribute('href')); });
   });
+  
   window.addEventListener('scroll', () => {
     const sections = document.querySelectorAll('.content-section');
     const scrollPos = window.scrollY + 100;
@@ -462,6 +469,7 @@ function initNavigation() {
     sections.forEach(section => { if(scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) current = section.id; });
     document.querySelectorAll('.nav-item').forEach(item => { item.classList.toggle('active', item.getAttribute('href') === `#${current}`); });
   });
+  
   window.addEventListener('resize', debounce(() => { if(!showingAllProducts) loadStoreProducts(); }, 250));
 }
 
@@ -713,15 +721,16 @@ function showFormMessage(message, type) {
 }
 
 function initUIInteractions() {
+  // Botões CTA
   document.querySelectorAll('.cta-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if(btn.classList.contains('primary') && !btn.classList.contains('faq-btn')) scrollToSection('#loja');
       else if(btn.classList.contains('secondary') && !btn.classList.contains('faq-btn')) scrollToSection('#sobre');
     });
   });
-  document.querySelector('#no-saves .cta-btn.primary')?.addEventListener('click', () => scrollToSection('#loja'));
   
-  const cartBtn = document.querySelector('.navbar .cart-btn');
+  // Botão carrinho
+  const cartBtn = document.querySelector('.cart-btn');
   if (cartBtn) {
     cartBtn.addEventListener('click', () => {
       window.location.href = 'carrinho.html';
@@ -807,7 +816,6 @@ function setupSupabase() {
 // FUNÇÕES OTP - CADASTRO E LOGIN
 // ============================================================
 
-// Função para mostrar/esconder campos OTP
 function toggleOtpFields(formType, show) {
   const container = document.getElementById(formType === 'signup' ? 'signupOtpContainer' : 'loginOtpContainer');
   const submitBtn = document.getElementById(formType === 'signup' ? 'signupSubmitBtn' : 'loginSubmitBtn');
@@ -826,7 +834,6 @@ function toggleOtpFields(formType, show) {
   }
 }
 
-// Função para enviar OTP (login ou cadastro)
 async function sendOtp(email, formType) {
   const msgDiv = document.getElementById('login-message');
   
@@ -861,7 +868,6 @@ async function sendOtp(email, formType) {
   }
 }
 
-// Função para verificar OTP (login ou cadastro)
 async function verifyOtp(email, token, formType) {
   const msgDiv = document.getElementById('login-message');
   
@@ -881,7 +887,6 @@ async function verifyOtp(email, token, formType) {
     
     if (error) throw error;
     
-    // Login bem-sucedido
     currentUser = {
       id: data.user.id,
       email: data.user.email,
@@ -892,7 +897,6 @@ async function verifyOtp(email, token, formType) {
     updateUserIconVisual(true);
     updateDropdownUserInfo();
     
-    // Se for cadastro, salvar dados adicionais
     if (formType === 'signup') {
       await saveUserProfile(data.user.id);
     }
@@ -917,7 +921,6 @@ async function verifyOtp(email, token, formType) {
   }
 }
 
-// Função para salvar perfil do usuário (cadastro)
 async function saveUserProfile(userId) {
   try {
     const name = document.getElementById('signupName')?.value.trim() || '';
@@ -928,7 +931,6 @@ async function saveUserProfile(userId) {
     
     console.log('📝 Salvando perfil:', { userId, name, phone, birth, gender, location });
     
-    // Verificar se já existe um perfil
     const { data: existingProfile, error: checkError } = await supabaseClient
       .from('profiles')
       .select('id')
@@ -942,7 +944,6 @@ async function saveUserProfile(userId) {
     let result;
     
     if (existingProfile) {
-      // Atualizar perfil existente
       console.log('🔄 Atualizando perfil existente...');
       result = await supabaseClient
         .from('profiles')
@@ -956,7 +957,6 @@ async function saveUserProfile(userId) {
         })
         .eq('id', userId);
     } else {
-      // Inserir novo perfil
       console.log('📝 Inserindo novo perfil...');
       result = await supabaseClient
         .from('profiles')
@@ -988,7 +988,6 @@ async function saveUserProfile(userId) {
 // HANDLERS DO FORMULÁRIO OTP
 // ============================================================
 
-// Handler do formulário de cadastro
 async function handleSignUp(event) {
   event.preventDefault();
   
@@ -1000,21 +999,18 @@ async function handleSignUp(event) {
   const msgDiv = document.getElementById('login-message');
   const email = document.getElementById('signupEmail')?.value.trim() || '';
   const name = document.getElementById('signupName')?.value.trim() || '';
-  const phone = document.getElementById('signupPhone')?.value.trim() || '';
   const birth = document.getElementById('signupBirth')?.value || '';
   const gender = document.getElementById('signupGender')?.value || '';
   const location = document.getElementById('signupLocation')?.value.trim() || '';
   const otpContainer = document.getElementById('signupOtpContainer');
   const otpInput = document.getElementById('signupOtp');
   
-  // Verifica se o OTP está visível (segundo passo)
   if (otpContainer && otpContainer.classList.contains('show')) {
     const token = otpInput?.value.trim() || '';
     await verifyOtp(email, token, 'signup');
     return;
   }
   
-  // Primeiro passo: validar dados do cadastro
   if (!name) {
     showMessage('❌ Insira seu nome completo', 'error', msgDiv);
     return;
@@ -1040,11 +1036,9 @@ async function handleSignUp(event) {
     return;
   }
   
-  // Enviar OTP
   await sendOtp(email, 'signup');
 }
 
-// Handler do formulário de login
 async function handleSignIn(event) {
   event.preventDefault();
   
@@ -1058,14 +1052,12 @@ async function handleSignIn(event) {
   const otpContainer = document.getElementById('loginOtpContainer');
   const otpInput = document.getElementById('loginOtp');
   
-  // Verifica se o OTP está visível (segundo passo)
   if (otpContainer && otpContainer.classList.contains('show')) {
     const token = otpInput?.value.trim() || '';
     await verifyOtp(email, token, 'login');
     return;
   }
   
-  // Primeiro passo: enviar OTP
   await sendOtp(email, 'login');
 }
 
@@ -1081,7 +1073,6 @@ function openLoginModal() {
     toggleOverlayToLogin();
     const msgDiv = document.getElementById('login-message');
     if (msgDiv) msgDiv.style.display = 'none';
-    // Resetar campos OTP
     resetOtpFields();
   }
 }
@@ -1197,36 +1188,28 @@ function initLoginSystem() {
   
   setupSupabase();
   
-  // Botões do overlay
+  // Botões do overlay (DESKTOP)
   const signUpBtn = document.getElementById('signUp');
   const signInBtn = document.getElementById('signIn');
   
   if (signUpBtn) {
-    const newSignUpBtn = signUpBtn.cloneNode(true);
-    signUpBtn.parentNode.replaceChild(newSignUpBtn, signUpBtn);
-    newSignUpBtn.addEventListener('click', toggleOverlayToSignUp);
+    signUpBtn.addEventListener('click', toggleOverlayToSignUp);
   }
   
   if (signInBtn) {
-    const newSignInBtn = signInBtn.cloneNode(true);
-    signInBtn.parentNode.replaceChild(newSignInBtn, signInBtn);
-    newSignInBtn.addEventListener('click', toggleOverlayToLogin);
+    signInBtn.addEventListener('click', toggleOverlayToLogin);
   }
   
-  // Formulários
+  // Formulários - ADICIONAR EVENT LISTENERS DIRETAMENTE
   const signupForm = document.getElementById('signupForm');
   const loginForm = document.getElementById('loginForm');
   
   if (signupForm) {
-    const newSignupForm = signupForm.cloneNode(true);
-    signupForm.parentNode.replaceChild(newSignupForm, signupForm);
-    newSignupForm.addEventListener('submit', handleSignUp);
+    signupForm.addEventListener('submit', handleSignUp);
   }
   
   if (loginForm) {
-    const newLoginForm = loginForm.cloneNode(true);
-    loginForm.parentNode.replaceChild(newLoginForm, loginForm);
-    newLoginForm.addEventListener('submit', handleSignIn);
+    loginForm.addEventListener('submit', handleSignIn);
   }
   
   // Fechar modal
@@ -1234,9 +1217,7 @@ function initLoginSystem() {
   if (loginModalElem) {
     const closeBtn = loginModalElem.querySelector('.modal-close');
     if (closeBtn) {
-      const newCloseBtn = closeBtn.cloneNode(true);
-      closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
-      newCloseBtn.addEventListener('click', closeLoginModal);
+      closeBtn.addEventListener('click', closeLoginModal);
     }
     
     loginModalElem.addEventListener('click', (e) => { 
@@ -1267,6 +1248,7 @@ function initLoginSystem() {
   
   updateUserInterface();
   initUserDropdown();
+  initAuthToggleMobile();
   
   restoreSession().then(isLogged => {
     if (isLogged && currentUser) {
@@ -1289,10 +1271,7 @@ function initUserDropdown() {
   
   if (!userIconBtn) return;
   
-  const newUserIconBtn = userIconBtn.cloneNode(true);
-  userIconBtn.parentNode.replaceChild(newUserIconBtn, userIconBtn);
-  
-  newUserIconBtn.addEventListener('click', (e) => {
+  userIconBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     
     if (!currentUser) {
@@ -1306,7 +1285,7 @@ function initUserDropdown() {
   });
   
   document.addEventListener('click', (e) => {
-    if (dropdown && !dropdown.contains(e.target) && e.target !== newUserIconBtn) {
+    if (dropdown && !dropdown.contains(e.target) && e.target !== userIconBtn) {
       dropdown.classList.remove('open');
     }
   });
@@ -1315,15 +1294,11 @@ function initUserDropdown() {
   const logoutBtn = document.getElementById('dropdownSair');
   
   if (favBtn) {
-    const newFavBtn = favBtn.cloneNode(true);
-    favBtn.parentNode.replaceChild(newFavBtn, favBtn);
-    newFavBtn.addEventListener('click', handleDropdownFavoritos);
+    favBtn.addEventListener('click', handleDropdownFavoritos);
   }
   
   if (logoutBtn) {
-    const newLogoutBtn = logoutBtn.cloneNode(true);
-    logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
-    newLogoutBtn.addEventListener('click', handleDropdownLogout);
+    logoutBtn.addEventListener('click', handleDropdownLogout);
   }
 }
 
@@ -1335,21 +1310,47 @@ function initAuthToggleMobile() {
   const toggleBtns = document.querySelectorAll('#authToggle button');
   const loginContainer = document.getElementById('loginContainer');
   const signupContainer = document.getElementById('signupContainer');
+  const overlayContainer = document.querySelector('.overlay-container');
 
   if (!toggleBtns.length || !loginContainer || !signupContainer) {
     console.warn('⚠️ Elementos de alternância não encontrados');
     return;
   }
 
+  function checkMobileView() {
+    const isMobile = window.innerWidth <= 768;
+    const authToggle = document.getElementById('authToggle');
+    
+    if (isMobile) {
+      // Mobile: mostrar toggle, esconder overlay
+      if (authToggle) authToggle.style.display = 'flex';
+      if (overlayContainer) overlayContainer.style.display = 'none';
+      
+      // Garantir que login esteja ativo por padrão
+      if (!loginContainer.classList.contains('active')) {
+        loginContainer.classList.add('active');
+      }
+      if (signupContainer.classList.contains('active')) {
+        signupContainer.classList.remove('active');
+      }
+    } else {
+      // Desktop: esconder toggle, mostrar overlay
+      if (authToggle) authToggle.style.display = 'none';
+      if (overlayContainer) overlayContainer.style.display = 'block';
+      
+      // Resetar classes
+      loginContainer.classList.remove('active');
+      signupContainer.classList.remove('active');
+    }
+  }
+
   toggleBtns.forEach(btn => {
     btn.addEventListener('click', function() {
       const target = this.dataset.target;
       
-      // Atualizar botões
       toggleBtns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
 
-      // Mostrar container correto
       if (target === 'login') {
         loginContainer.classList.add('active');
         signupContainer.classList.remove('active');
@@ -1359,6 +1360,11 @@ function initAuthToggleMobile() {
       }
     });
   });
+
+  // Verificar viewport ao carregar e redimensionar
+  window.addEventListener('load', checkMobileView);
+  window.addEventListener('resize', checkMobileView);
+  checkMobileView();
 }
 
 // ============================================================

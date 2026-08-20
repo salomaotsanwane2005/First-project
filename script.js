@@ -1196,7 +1196,7 @@ function initLoginSystem() {
   
   setupSupabase();
   
-  /* Botões do overlay
+ //  Botões do overlay
   const signUpBtn = document.getElementById('signUp');
   const signInBtn = document.getElementById('signIn');
   
@@ -1210,7 +1210,7 @@ function initLoginSystem() {
     const newSignInBtn = signInBtn.cloneNode(true);
     signInBtn.parentNode.replaceChild(newSignInBtn, signInBtn);
     newSignInBtn.addEventListener('click', toggleOverlayToLogin);
-  }*/
+  }
   
   // Formulários
   const signupForm = document.getElementById('signupForm');

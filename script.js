@@ -89,13 +89,11 @@ function updateUserIconVisual(isLoggedIn) {
       userIcon.style.borderColor = 'var(--primary)';
       const icon = userIcon.querySelector('i');
       if (icon) icon.style.color = 'white';
-      userIcon.setAttribute('aria-expanded', 'true');
     } else {
       userIcon.style.background = 'rgba(255, 255, 255, 0.1)';
       userIcon.style.borderColor = 'rgba(255, 255, 255, 0.2)';
       const icon = userIcon.querySelector('i');
       if (icon) icon.style.color = 'var(--text)';
-      userIcon.setAttribute('aria-expanded', 'false');
     }
   }
 }
@@ -673,7 +671,10 @@ function initFAQModal() {
   const faqModal = safeGetElement("faqModal");
   if (!faqModal) return;
   document.querySelectorAll(".faq-btn").forEach(btn => {
-    btn.addEventListener("click", () => { faqModal.classList.add("open"); document.body.style.overflow = 'hidden'; });
+    btn.addEventListener("click", () => { 
+      faqModal.classList.add("open"); 
+      document.body.style.overflow = 'hidden'; 
+    });
   });
   const close = () => { faqModal.classList.remove("open"); document.body.style.overflow = 'auto'; };
   faqModal.addEventListener("click", (e) => { if(e.target === faqModal || e.target.classList.contains('modal-close')) close(); });
@@ -1109,7 +1110,7 @@ function resetOtpFields() {
   });
   ['signupSubmitBtn', 'loginSubmitBtn'].forEach(id => {
     const btn = document.getElementById(id);
-    if (btn) btn.textContent = btn.id.includes('signup') ? 'Enviar código' : 'Enviar código';
+    if (btn) btn.textContent = 'Enviar código';
   });
 }
 
@@ -1196,7 +1197,7 @@ function initLoginSystem() {
   
   setupSupabase();
   
- //  Botões do overlay
+  // Botões do overlay
   const signUpBtn = document.getElementById('signUp');
   const signInBtn = document.getElementById('signIn');
   
@@ -1226,7 +1227,7 @@ function initLoginSystem() {
     const newLoginForm = loginForm.cloneNode(true);
     loginForm.parentNode.replaceChild(newLoginForm, loginForm);
     newLoginForm.addEventListener('submit', handleSignIn);
-  
+  }
   
   // Fechar modal
   const loginModalElem = document.getElementById('loginModal');
@@ -1327,6 +1328,40 @@ function initUserDropdown() {
 }
 
 // ============================================================
+// INICIALIZAÇÃO DO TOGGLE MOBILE (LOGIN/CADASTRO)
+// ============================================================
+
+function initAuthToggleMobile() {
+  const toggleBtns = document.querySelectorAll('#authToggle button');
+  const loginContainer = document.getElementById('loginContainer');
+  const signupContainer = document.getElementById('signupContainer');
+
+  if (!toggleBtns.length || !loginContainer || !signupContainer) {
+    console.warn('⚠️ Elementos de alternância não encontrados');
+    return;
+  }
+
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const target = this.dataset.target;
+      
+      // Atualizar botões
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+
+      // Mostrar container correto
+      if (target === 'login') {
+        loginContainer.classList.add('active');
+        signupContainer.classList.remove('active');
+      } else {
+        signupContainer.classList.add('active');
+        loginContainer.classList.remove('active');
+      }
+    });
+  });
+}
+
+// ============================================================
 // EVENTOS GLOBAIS
 // ============================================================
 
@@ -1334,6 +1369,10 @@ document.addEventListener('keydown', (e) => {
   if(e.key === 'Escape') { 
     closeLoginModal(); 
     closeUserDropdown(); 
+    document.querySelectorAll('.modal.open').forEach(modal => {
+      modal.classList.remove('open');
+      document.body.style.overflow = 'auto';
+    });
   } 
 });
 
@@ -1344,6 +1383,7 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener("DOMContentLoaded", async function() {
   console.log("🚀 VRTIGO - Sistema OTP iniciado!");
   
+  // Inicializar componentes
   initNavigation();
   initProductModal();
   initFAQModal();
@@ -1352,9 +1392,15 @@ document.addEventListener("DOMContentLoaded", async function() {
   initThemeToggle();
   initFilters();
   initLoginSystem();
+  initAuthToggleMobile();
   
+  // Carregar produtos
   await carregarProdutos();
   
+  // Atualizar badge do carrinho
+  updateCartBadge();
+  
+  // Observar seção de favoritos
   const savesSection = safeGetElement('saves');
   if (savesSection) {
     new IntersectionObserver((entries) => { 
@@ -1365,6 +1411,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   console.log("✅ Sistema VRTIGO OTP inicializado com sucesso!");
 });
 
+// Adicionar estilos para animações
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn {
@@ -1374,6 +1421,17 @@ style.textContent = `
   @keyframes slideOut {
     from { transform: translateX(0); opacity: 1; }
     to { transform: translateX(100%); opacity: 0; }
+  }
+  @keyframes heartPulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 `;
 document.head.appendChild(style);

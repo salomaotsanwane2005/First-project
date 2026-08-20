@@ -402,10 +402,17 @@ function getRemainingProductsCount() { return Math.max(0, produtosVRTIGO.length 
 
 function createViewMoreButton() {
   if (viewMoreButton) return viewMoreButton;
+  
   const button = document.createElement('button');
   button.className = 'view-more-btn';
   button.innerHTML = `<span>Ver mais produtos</span><i class="fas fa-chevron-down"></i><span class="count">+${getRemainingProductsCount()}</span>`;
-  button.addEventListener('click', () => { showingAllProducts = true; loadStoreProducts(); if(viewMoreButton) viewMoreButton.style.display = 'none'; });
+  
+  button.addEventListener('click', () => { 
+    showingAllProducts = true; 
+    loadStoreProducts(); 
+    if(viewMoreButton) viewMoreButton.style.display = 'none'; 
+  });
+  
   viewMoreButton = button;
   return button;
 }
@@ -439,10 +446,22 @@ function loadProductsToGrid(productsArray, gridElement) {
 async function loadStoreProducts() {
   const productsGrid = document.querySelector('.products-grid');
   if (!productsGrid) return;
+  
+  // Carregar produtos no grid
   loadProductsToGrid(produtosVRTIGO, productsGrid);
-  if (!showingAllProducts && getRemainingProductsCount() > 0 && !productsGrid.nextElementSibling?.classList?.contains('view-more-btn')) {
-    productsGrid.parentNode.insertBefore(createViewMoreButton(), productsGrid.nextSibling);
-  } else if (viewMoreButton) viewMoreButton.style.display = 'none';
+  
+  // Remover botão "Ver Mais" existente
+  if (viewMoreButton) {
+    viewMoreButton.remove();
+    viewMoreButton = null;
+  }
+  
+  // Verificar se precisa mostrar o botão "Ver Mais"
+  if (!showingAllProducts && getRemainingProductsCount() > 0) {
+    const button = createViewMoreButton();
+    productsGrid.parentNode.insertBefore(button, productsGrid.nextSibling);
+  }
+  
   await loadUserFavorites();
 }
 
@@ -773,7 +792,17 @@ function filterProducts(filter) {
   showingAllProducts = false;
   loadProductsToGrid(filtered, productsGrid);
   
-  if (viewMoreButton) viewMoreButton.style.display = 'none';
+  // Remover botão "Ver Mais" existente
+  if (viewMoreButton) {
+    viewMoreButton.remove();
+    viewMoreButton = null;
+  }
+  
+  // Verificar se deve mostrar botão "Ver Mais" para produtos filtrados
+  if (!showingAllProducts && filtered.length > getInitialProductCount()) {
+    const button = createViewMoreButton();
+    productsGrid.parentNode.insertBefore(button, productsGrid.nextSibling);
+  }
 }
 
 function initThemeToggle() {
@@ -1388,6 +1417,10 @@ document.addEventListener('keydown', (e) => {
 
 document.addEventListener("DOMContentLoaded", async function() {
   console.log("🚀 VRTIGO - Sistema OTP iniciado!");
+  
+  // Resetar estado
+  showingAllProducts = false;
+  viewMoreButton = null;
   
   // Inicializar componentes
   initNavigation();
